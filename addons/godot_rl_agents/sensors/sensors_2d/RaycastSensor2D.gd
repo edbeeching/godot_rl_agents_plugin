@@ -20,6 +20,24 @@ class_name RaycastSensor2D
 		collide_with_bodies = value
 		_update()
 
+@export_flags_2d_physics var collision_mask := 1:
+	get: return collision_mask
+	set(value):
+		collision_mask = value
+		_update()
+
+@export var collide_with_areas := false:
+	get: return collide_with_areas
+	set(value):
+		collide_with_areas = value
+		_update()
+
+@export var collide_with_bodies := true:
+	get: return collide_with_bodies
+	set(value):
+		collide_with_bodies = value
+		_update()
+
 @export var n_rays := 16.0:
 	get: return n_rays
 	set(value):
