@@ -37,7 +37,7 @@ class_name RaycastSensor2D
 		cone_width = value
 		_update()
 	
-@export var debug_draw := false :
+@export var debug_draw := true :
 	get: return debug_draw 
 	set(value):
 		debug_draw = value
@@ -49,11 +49,15 @@ var rays := []
 
 func _update():
 	if Engine.is_editor_hint():
-		_spawn_nodes()	
+		if debug_draw:
+			_spawn_nodes()
+		else:
+			for ray in get_children():
+				if ray is RayCast2D:
+					remove_child(ray)
 
 func _ready() -> void:
 	_spawn_nodes()
-
 
 func _spawn_nodes():
 	for ray in rays:
