@@ -1,6 +1,6 @@
+@tool
 extends ISensor3D
 class_name RayCastSensor3D
-@tool
 @export_flags_3d_physics var collision_mask = 1:
 	get: return collision_mask
 	set(value):

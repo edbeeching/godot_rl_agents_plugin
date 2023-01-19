@@ -1,6 +1,6 @@
+@tool
 extends ISensor2D
 class_name RaycastSensor2D
-@tool
 
 @export var n_rays := 16.0:
 	get: return n_rays
