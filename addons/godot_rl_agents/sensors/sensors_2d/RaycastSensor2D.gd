@@ -1,6 +1,24 @@
+@tool
 extends ISensor2D
 class_name RaycastSensor2D
-@tool
+
+@export_flags_2d_physics var collision_mask := 1:
+	get: return collision_mask
+	set(value):
+		collision_mask = value
+		_update()
+
+@export var collide_with_areas := false:
+	get: return collide_with_areas
+	set(value):
+		collide_with_areas = value
+		_update()
+
+@export var collide_with_bodies := true:
+	get: return collide_with_bodies
+	set(value):
+		collide_with_bodies = value
+		_update()
 
 @export var n_rays := 16.0:
 	get: return n_rays
@@ -19,7 +37,7 @@ class_name RaycastSensor2D
 		cone_width = value
 		_update()
 	
-@export var debug_draw := false :
+@export var debug_draw := true :
 	get: return debug_draw 
 	set(value):
 		debug_draw = value
@@ -31,11 +49,15 @@ var rays := []
 
 func _update():
 	if Engine.is_editor_hint():
-		_spawn_nodes()	
+		if debug_draw:
+			_spawn_nodes()
+		else:
+			for ray in get_children():
+				if ray is RayCast2D:
+					remove_child(ray)
 
 func _ready() -> void:
 	_spawn_nodes()
-
 
 func _spawn_nodes():
 	for ray in rays:
@@ -55,7 +77,9 @@ func _spawn_nodes():
 		))
 		ray.set_name("node_"+str(i))
 		ray.enabled  = true
-		ray.collide_with_areas = true
+		ray.collide_with_areas = collide_with_areas
+		ray.collide_with_bodies = collide_with_bodies
+		ray.collision_mask = collision_mask
 		add_child(ray)
 		rays.append(ray)
 		

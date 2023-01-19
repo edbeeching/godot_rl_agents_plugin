@@ -1,6 +1,6 @@
+@tool
 extends ISensor3D
 class_name RayCastSensor3D
-@tool
 @export_flags_3d_physics var collision_mask = 1:
 	get: return collision_mask
 	set(value):
@@ -10,7 +10,7 @@ class_name RayCastSensor3D
 	get: return boolean_class_mask
 	set(value):
 		boolean_class_mask = value
-		_update()		
+		_update()
 
 @export var n_rays_width := 6.0:
 	get: return n_rays_width
@@ -42,18 +42,18 @@ class_name RayCastSensor3D
 		cone_height = value
 		_update()
 
-@export var collide_with_bodies := true:
-	get: return collide_with_bodies
-	set(value):
-		collide_with_bodies = value
-		_update()
-		
 @export var collide_with_areas := false:
 	get: return collide_with_areas
 	set(value):
 		collide_with_areas = value
 		_update()
 		
+@export var collide_with_bodies := true:
+	get: return collide_with_bodies
+	set(value):
+		collide_with_bodies = value
+		_update()
+
 @export var class_sensor := false
 		
 var rays := []
