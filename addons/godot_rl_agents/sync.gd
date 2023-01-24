@@ -102,13 +102,6 @@ func connect_to_server():
 
 func _get_args():
 	print("getting command line arguments")
-#	var arguments = {}
-#	for argument in OS.get_cmdline_args():
-#		# Parse valid command-line arguments into a dictionary
-#		if argument.find("=") > -1:
-#			var key_value = argument.split("=")
-#			arguments[key_value[0].lstrip("--")] = key_value[1]
-			
 	var arguments = {}
 	for argument in OS.get_cmdline_args():
 		print(argument)
