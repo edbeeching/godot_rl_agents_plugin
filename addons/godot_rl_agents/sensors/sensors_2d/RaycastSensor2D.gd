@@ -26,12 +26,12 @@ class_name RaycastSensor2D
 		n_rays = value
 		_update()
 	
-@export var ray_length := 200:# (float,5,200,5.0)
+@export_range(5,200,5.0) var ray_length := 200:
 	get: return ray_length
 	set(value):
 		ray_length = value
 		_update()
-@export var cone_width := 360.0:# (float,5,360,5.0)
+@export_range(5,360,5.0) var cone_width := 360.0:
 	get: return cone_width
 	set(value):
 		cone_width = value
