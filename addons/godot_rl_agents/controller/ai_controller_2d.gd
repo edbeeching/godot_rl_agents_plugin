@@ -11,7 +11,9 @@ var n_steps := 0
 var _player := Node2D
 var needs_reset := false
 
-
+func _ready():
+	add_to_group("AGENT")
+	
 #-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
 	assert(false, "the get_obs method is not implemented when extending from ai_controller") 
