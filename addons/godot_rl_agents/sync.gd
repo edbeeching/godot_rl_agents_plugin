@@ -2,6 +2,8 @@ extends Node
 # --fixed-fps 2000 --disable-render-loop
 @export var action_repeat := 8
 @export var speed_up = 1
+@onready var start_time = Time.get_ticks_msec()
+
 var n_action_steps = 0
 
 const MAJOR_VERSION := "0"
@@ -16,7 +18,6 @@ var should_connect = true
 var agents
 var need_to_send_obs = false
 var args = null
-@onready var start_time = Time.get_ticks_msec()
 var initialized = false
 var just_reset = false
 
@@ -265,6 +266,7 @@ func _get_obs_from_agents():
 	var obs = []
 	for agent in agents:
 		obs.append(agent.get_obs())
+
 	return obs
 	
 func _get_reward_from_agents():

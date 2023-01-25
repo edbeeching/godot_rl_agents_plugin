@@ -6,24 +6,23 @@ class_name AIController3D
 
 var heuristic := "human"
 var done := false
-var needs_reset := false
 var reward := 0.0
 var n_steps := 0
-var _player : Node3D
-
+var _player := Node3D
+var needs_reset := false
 
 
 #-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
-	assert(false, "the get_obs method is not implememted when extending from ai_controller") 
+	assert(false, "the get_obs method is not implemented when extending from ai_controller") 
 	return {"obs":[]}
 
 func get_reward() -> float:	
-	assert(false, "the get_reward method is not implememted when extending from ai_controller") 
+	assert(false, "the get_reward method is not implemented when extending from ai_controller") 
 	return 0.0
 	
 func get_action_space() -> Dictionary:
-	assert(false, "the get get_action_space method is not implememted when extending from ai_controller") 
+	assert(false, "the get get_action_space method is not implemented when extending from ai_controller") 
 	return {
 		"example_actions_continous" : {
 			"size": 2,
@@ -36,11 +35,11 @@ func get_action_space() -> Dictionary:
 		}
 	
 func set_action(action) -> void:	
-	assert(false, "the get set_action method is not implememted when extending from ai_controller") 	
+	assert(false, "the get set_action method is not implemented when extending from ai_controller") 	
 # -----------------------------------------------------------------------------#
 
 func init(player):
-	_player=player
+	_player = player
 	
 func _physics_process(delta):
 	n_steps += 1
