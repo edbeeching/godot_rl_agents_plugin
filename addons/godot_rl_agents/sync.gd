@@ -101,7 +101,7 @@ func connect_to_server():
 	stream.poll()
 	# Fetch the status until it is either connected (2) or failed to connect (3)
 	while stream.get_status() < 2:
-		status = stream.poll()
+		stream.poll()
 	return stream.get_status() == 2
 
 func _get_args():
