@@ -39,9 +39,6 @@ func get_action_space() -> Dictionary:
 func set_action(action) -> void:	
 	assert(false, "the get set_action method is not implemented when extending from ai_controller") 	
 # -----------------------------------------------------------------------------#
-
-func init(player):
-	_player = player
 	
 func _physics_process(delta):
 	n_steps += 1
