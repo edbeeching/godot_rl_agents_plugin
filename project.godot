@@ -13,9 +13,9 @@ config_version=5
 config/name="Godot RL Agents"
 config/features=PackedStringArray("4.0")
 
-[editor]
+[dotnet]
 
-export/convert_text_resources_to_binary=true
+project/assembly_name="Godot RL Agents"
 
 [editor_plugins]
 
