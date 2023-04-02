@@ -1,7 +1,4 @@
-# meta-name: AI Controller Logic
-# meta-description: Methods that need implementing for AI controllers
-# meta-default: true
-extends _BASE_
+extends %BASE%
 
 #-- Methods that need implementing using the "extend script" option in Godot --#
 

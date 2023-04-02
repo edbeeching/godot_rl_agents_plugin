@@ -2,7 +2,7 @@ extends Node
 class_name AIController
 
 # ------------------ Godot RL Agents Logic ------------------------------------#
-@export var reset_after := 1000
+export var reset_after := 1000
 
 var heuristic := "human"
 var done := false

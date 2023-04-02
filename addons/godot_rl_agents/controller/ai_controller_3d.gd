@@ -2,7 +2,7 @@ extends AIController
 class_name AIController3D
 
 # ------------------ Godot RL Agents Logic ------------------------------------#
-var _player: Node3D
+var _player: Spatial
 
-func init(player: Node3D):
+func init(player: Spatial):
 	_player = player

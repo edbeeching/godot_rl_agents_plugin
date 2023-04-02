@@ -1,63 +1,38 @@
-@tool
 extends ISensor2D
 class_name RaycastSensor2D
+tool
 
-@export_flags_2d_physics var collision_mask := 1:
-	get: return collision_mask
-	set(value):
-		collision_mask = value
-		_update()
-
-@export var collide_with_areas := false:
-	get: return collide_with_areas
-	set(value):
-		collide_with_areas = value
-		_update()
-
-@export var collide_with_bodies := true:
-	get: return collide_with_bodies
-	set(value):
-		collide_with_bodies = value
-		_update()
-
-@export var n_rays := 16.0:
-	get: return n_rays
-	set(value):
-		n_rays = value
-		_update()
-	
-@export_range(5,200,5.0) var ray_length := 200:
-	get: return ray_length
-	set(value):
-		ray_length = value
-		_update()
-@export_range(5,360,5.0) var cone_width := 360.0:
-	get: return cone_width
-	set(value):
-		cone_width = value
-		_update()
-	
-@export var debug_draw := true :
-	get: return debug_draw 
-	set(value):
-		debug_draw = value
-		_update()  
-
+export(float,2, 36,2.0) var n_rays := 16.0 setget set_n_rays
+export(float,5,200,5.0) var ray_length := 200 setget set_ray_length
+export(float,5,360,5.0) var cone_width := 360.0 setget set_cone_width
+export(bool) var debug_draw := false setget set_debug_draw
 
 var _angles = []
 var rays := []
 
-func _update():
-	if Engine.is_editor_hint():
-		if debug_draw:
-			_spawn_nodes()
-		else:
-			for ray in get_children():
-				if ray is RayCast2D:
-					remove_child(ray)
+func set_debug_draw(value):
+	debug_draw = value
+	_update()
+
+func set_ray_length(value):
+	ray_length = value
+	_update()
+		
+func set_n_rays(value):
+	n_rays = value
+	_update()
+		
+func set_cone_width(value):
+	cone_width = value
+	_update()
+
+func _update() -> void:
+	if Engine.editor_hint:
+		_spawn_nodes()
 
 func _ready() -> void:
-	_spawn_nodes()
+   _spawn_nodes()
+
 
 func _spawn_nodes():
 	for ray in rays:
@@ -71,15 +46,13 @@ func _spawn_nodes():
 	for i in n_rays:
 		var angle = start + i * step
 		var ray = RayCast2D.new()
-		ray.set_target_position(Vector2(
-			ray_length*cos(deg_to_rad(angle)),
-			ray_length*sin(deg_to_rad(angle))
+		ray.set_cast_to(Vector2(
+			ray_length*cos(deg2rad(angle)),
+			ray_length*sin(deg2rad(angle))
 		))
 		ray.set_name("node_"+str(i))
 		ray.enabled  = true
-		ray.collide_with_areas = collide_with_areas
-		ray.collide_with_bodies = collide_with_bodies
-		ray.collision_mask = collision_mask
+		ray.collide_with_areas = true
 		add_child(ray)
 		rays.append(ray)
 		
@@ -92,7 +65,7 @@ func _physics_process(delta: float) -> void:
 		self._obs = calculate_raycasts()
 		
 func get_observation() -> Array:
-	if len(self._obs) == 0:
+	if self._obs == null or self._obs.size() == 0:
 		print("obs was null, forcing raycast update")
 		return self.calculate_raycasts()
 	return self._obs
