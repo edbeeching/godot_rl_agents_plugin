@@ -105,17 +105,18 @@ func _physics_process(delta):
 	
 	elif onnx_model != null:
 		var obs : Array = _get_obs_from_agents()
-		
-		
-		
+	
 		var actions = []
 		for o in obs:
 			var action = onnx_model.run_inference(o["obs"], 1.0)
+			action["output"] = clamp_array(action["output"], -1.0, 1.0)
 			var action_dict = _extract_action_dict(action["output"])
 			actions.append(action_dict)
+		
 		_set_agent_actions(actions) 
 		need_to_send_obs = true
 		get_tree().set_pause(false) 
+		_reset_agents_if_done()	
 		
 	else:
 		_reset_agents_if_done()	
@@ -125,7 +126,10 @@ func _extract_action_dict(action_array: Array):
 	var result = {}
 	for key in _action_space.keys():
 		var size = _action_space[key]["size"]
-		result[key] = action_array.slice(index,index+size)
+		if _action_space[key]["action_type"] == "discrete":
+			result[key] = round(action_array[index])
+		else:
+			result[key] = action_array.slice(index,index+size)
 		index += size
 		
 	return result
@@ -325,3 +329,8 @@ func _set_agent_actions(actions):
 	for i in range(len(actions)):
 		agents[i].set_action(actions[i])
 	
+func clamp_array(arr : Array, min:float, max:float):
+	var output : Array = []
+	for a in arr:
+		output.append(clamp(a, min, max))
+	return output
