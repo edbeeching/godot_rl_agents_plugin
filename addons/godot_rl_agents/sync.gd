@@ -43,17 +43,20 @@ func _initialize():
 	Engine.time_scale = _get_speedup() * 1.0
 	prints("physics ticks", Engine.physics_ticks_per_second, Engine.time_scale, _get_speedup(), speed_up)
 	
-
-	connected = connect_to_server()
-	if connected:
-		_set_heuristic("model")
-		_handshake()
-		_send_env_info()
-	elif onnx_model_path != "":
+	# Run inference if onnx model path is set, otherwise wait for server connection
+	var run_onnx_model_inference : bool = onnx_model_path != ""
+	if run_onnx_model_inference:
+		assert(FileAccess.file_exists(onnx_model_path), "Onnx Model Path set on Sync node does not exist: " + onnx_model_path)
 		onnx_model = ONNXModel.new(onnx_model_path, 1)
 		_set_heuristic("model")
-	else:
-		_set_heuristic("human")  
+	else:		
+		connected = connect_to_server()
+		if connected:
+			_set_heuristic("model")
+			_handshake()
+			_send_env_info()
+		else:
+			_set_heuristic("human")  
 		
 	_set_seed()
 	_set_action_repeat()
