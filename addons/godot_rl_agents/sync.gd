@@ -111,7 +111,6 @@ func _physics_process(delta):
 		var actions = []
 		for o in obs:
 			var action = onnx_model.run_inference(o["obs"], 1.0)
-			action["output"] = clamp_array(action["output"], -1.0, 1.0)
 			var action_dict = _extract_action_dict(action["output"])
 			actions.append(action_dict)
 		
@@ -129,11 +128,19 @@ func _extract_action_dict(action_array: Array):
 	for key in _action_space.keys():
 		var size = _action_space[key]["size"]
 		if _action_space[key]["action_type"] == "discrete":
-			result[key] = round(action_array[index])
+			var action = action_array[index]
+			# If the action received from inference is discrete, it will be received as int
+			# If it is a float, convert it to a binary discrete action
+			if (typeof(action) == TYPE_FLOAT):		
+				result[key] = int(action > 0)
+			elif (typeof(action) == TYPE_INT):
+				result[key] = action
+			else:
+				assert(false, "Unexpected action type received, expected float or int.")
+			index += 1
 		else:
-			result[key] = action_array.slice(index,index+size)
-		index += size
-		
+			result[key] = clamp_array(action_array.slice(index,index+size), -1, 1)
+			index += size
 	return result
 
 func _get_agents():

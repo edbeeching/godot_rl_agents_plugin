@@ -10,7 +10,7 @@ namespace GodotONNX
     public partial class ONNXInference : Node
     {
 
-        private InferenceSession session;
+        //private InferenceSession session;
         /// <summary>
         /// Path to the ONNX model. Use Initialize to change it. 
         /// </summary>
@@ -26,11 +26,9 @@ namespace GodotONNX
             modelPath = Path;
             batchSize = BatchSize;
             SessionOpt = SessionConfigurator.GetSessionOptions();
-            session = LoadModel(modelPath);
-
         }
         /// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Run/*'/>
-        public Godot.Collections.Dictionary<string, Godot.Collections.Array<float>> RunInference(Godot.Collections.Array<float> obs, int state_ins)
+        public Godot.Collections.Dictionary<string, Godot.Collections.Array> RunInference(Godot.Collections.Array<float> obs, int state_ins)
         {
             //Current model: Any (Godot Rl Agents)
             //Expects a tensor of shape [batch_size, input_size] type float named obs and a tensor of shape [batch_size] type float named state_ins
@@ -50,11 +48,47 @@ namespace GodotONNX
             };
             IReadOnlyCollection<string> outputNames = new List<string> { "output", "state_outs" }; //ONNX is sensible to these names, as well as the input names
 
-            IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results;
-
             try
             {
-                results = session.Run(inputs, outputNames);
+                using var session = new InferenceSession(modelPath, SessionOpt);
+                using var results = session.Run(inputs, outputNames);
+
+                DisposableNamedOnnxValue output1 = results.First();
+                DisposableNamedOnnxValue output2 = results.Last();
+
+                //Can't convert IEnumerable<float> to Variant, so we have to convert it to an array or something
+                Godot.Collections.Dictionary<string, Godot.Collections.Array> output = new();
+
+                // Output1 array may contains longs if only discrete actions are used or floats otherwise
+                Godot.Collections.Array output1Array = new();
+                Godot.Collections.Array output2Array = new();
+
+                if (output1.ElementType == TensorElementType.Float)
+                {
+                    foreach (float f in output1.AsEnumerable<float>())
+                    {
+                        output1Array.Add(f);
+                    }
+                }
+                // SB3 exported model will send int64 actions if only discrete actions are used in the environment
+                else if (output1.ElementType == TensorElementType.Int64)
+                {
+                    foreach (long f in output1.AsEnumerable<long>())
+                    {
+                        output1Array.Add(f);
+                    }
+                }
+
+                foreach (float f in output2.AsEnumerable<float>())
+                {
+                    output2Array.Add(f);
+                }
+
+                output.Add(output1.Name, output1Array);
+                output.Add(output2.Name, output2Array);
+
+                //Output is a dictionary of arrays, ex: { "output" : [0.1, 0.2, 0.3, 0.4, ...], "state_outs" : [0.5, ...]}
+                return output;
             }
             catch (OnnxRuntimeException e)
             {
@@ -62,36 +96,7 @@ namespace GodotONNX
                 GD.Print("Error at inference: ", e);
                 return null;
             }
-            //Can't convert IEnumerable<float> to Variant, so we have to convert it to an array or something
-            Godot.Collections.Dictionary<string, Godot.Collections.Array<float>> output = new Godot.Collections.Dictionary<string, Godot.Collections.Array<float>>();
-            DisposableNamedOnnxValue output1 = results.First();
-            DisposableNamedOnnxValue output2 = results.Last();
-            Godot.Collections.Array<float> output1Array = new Godot.Collections.Array<float>();
-            Godot.Collections.Array<float> output2Array = new Godot.Collections.Array<float>();
-
-            foreach (float f in output1.AsEnumerable<float>())
-            {
-                output1Array.Add(f);
-            }
-
-            foreach (float f in output2.AsEnumerable<float>())
-            {
-                output2Array.Add(f);
-            }
-
-            output.Add(output1.Name, output1Array);
-            output.Add(output2.Name, output2Array);
-
-            //Output is a dictionary of arrays, ex: { "output" : [0.1, 0.2, 0.3, 0.4, ...], "state_outs" : [0.5, ...]}
-            return output;
         }
-        /// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Load/*'/>
-        public InferenceSession LoadModel(string Path)
-        {
-            Godot.FileAccess file = FileAccess.Open(Path, Godot.FileAccess.ModeFlags.Read);
-            byte[] model = file.GetBuffer((int)file.GetLength());
-            file.Close();
-            return new InferenceSession(model, SessionOpt); //Load the model
-        }
+
     }
 }

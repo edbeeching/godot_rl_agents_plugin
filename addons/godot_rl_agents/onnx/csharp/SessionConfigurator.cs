@@ -7,6 +7,9 @@ namespace GodotONNX
 
     public static class SessionConfigurator
     {
+        /// <summary>
+        /// Compute names
+        /// </summary>
         public enum ComputeName
         {
             CUDA,
@@ -22,6 +25,7 @@ namespace GodotONNX
         public static SessionOptions GetSessionOptions()
         {
             options.LogSeverityLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_WARNING;
+
             // see warnings
             SystemCheck();
             return options;
@@ -50,8 +54,6 @@ namespace GodotONNX
 
             //match OS and Compute API
             GD.Print($"OS: {OSName} Compute API: {ComputeAPI}");
-
-            options.AppendExecutionProvider_CPU(0);
 
             /*
             switch (OSName)
