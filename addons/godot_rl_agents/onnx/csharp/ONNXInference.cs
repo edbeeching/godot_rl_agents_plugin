@@ -73,9 +73,9 @@ namespace GodotONNX
                 // SB3 exported model will send int64 actions if only discrete actions are used in the environment
                 else if (output1.ElementType == TensorElementType.Int64)
                 {
-                    foreach (long f in output1.AsEnumerable<long>())
+                    foreach (long l in output1.AsEnumerable<long>())
                     {
-                        output1Array.Add(f);
+                        output1Array.Add(l);
                     }
                 }
 
