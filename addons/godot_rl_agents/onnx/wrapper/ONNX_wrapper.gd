@@ -19,6 +19,6 @@ func run_inference(obs : Array, state_ins : int) -> Dictionary:
 	return inferencer.RunInference(obs, state_ins)
 
 func _notification(what):
-	if NOTIFICATION_PREDELETE:
+	if what == NOTIFICATION_PREDELETE:
 		inferencer.FreeDisposables()
 		inferencer.free()
