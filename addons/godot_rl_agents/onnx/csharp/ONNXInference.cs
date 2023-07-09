@@ -83,6 +83,7 @@ namespace GodotONNX
 			output.Add(output2.Name, output2Array);
 
 			//Output is a dictionary of arrays, ex: { "output" : [0.1, 0.2, 0.3, 0.4, ...], "state_outs" : [0.5, ...]}
+			output1.Dispose(); output2.Dispose(); results.Dispose();
 			return output;
 		}
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Load/*'/>
@@ -90,7 +91,7 @@ namespace GodotONNX
 		{
 			Godot.FileAccess file = FileAccess.Open(Path, Godot.FileAccess.ModeFlags.Read);
 			byte[] model = file.GetBuffer((int)file.GetLength());
-			file.Close();
+			file.Close(); file.Dispose(); //Close the file, then dispose the reference.
 			return new InferenceSession(model, SessionOpt); //Load the model
 		}
 		public void FreeDisposables()
