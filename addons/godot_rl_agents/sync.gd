@@ -1,5 +1,9 @@
 extends Node
+
 # --fixed-fps 2000 --disable-render-loop
+
+enum ControlModes {HUMAN, TRAINING, ONNX_INFERENCE}
+@export var control_mode: ControlModes = ControlModes.TRAINING
 @export_range(1, 10, 1, "or_greater") var action_repeat := 8
 @export_range(1, 10, 1, "or_greater") var speed_up = 1
 @export var onnx_model_path := ""
@@ -26,7 +30,6 @@ var _action_space : Dictionary
 var _obs_space : Dictionary
 
 # Called when the node enters the scene tree for the first time.
-
 func _ready():
 	await get_tree().root.ready
 	get_tree().set_pause(true) 
@@ -43,26 +46,27 @@ func _initialize():
 	Engine.time_scale = _get_speedup() * 1.0
 	prints("physics ticks", Engine.physics_ticks_per_second, Engine.time_scale, _get_speedup(), speed_up)
 	
-	# Run inference if onnx model path is set, otherwise wait for server connection
-	var run_onnx_model_inference : bool = onnx_model_path != ""
-	if run_onnx_model_inference:
-		assert(FileAccess.file_exists(onnx_model_path), "Onnx Model Path set on Sync node does not exist: " + onnx_model_path)
-		onnx_model = ONNXModel.new(onnx_model_path, 1)
-		_set_heuristic("model")
-	else:		
-		connected = connect_to_server()
-		if connected:
-			_set_heuristic("model")
-			_handshake()
-			_send_env_info()
-		else:
-			_set_heuristic("human")  
-		
+	_set_heuristic("human")
+	match control_mode:
+		ControlModes.TRAINING:
+			connected = connect_to_server()
+			if connected:
+				_set_heuristic("model")
+				_handshake()
+				_send_env_info()  
+			else:
+				push_warning("Couldn't connect to Python server, using human controls instead. ",
+				"Did you start the training server using e.g. `gdrl` from the console?")
+		ControlModes.ONNX_INFERENCE:
+				assert(FileAccess.file_exists(onnx_model_path), "Onnx Model Path set on Sync node does not exist: %s" % onnx_model_path)
+				onnx_model = ONNXModel.new(onnx_model_path, 1)
+				_set_heuristic("model")	
+	
 	_set_seed()
 	_set_action_repeat()
 	initialized = true  
 
-func _physics_process(delta): 
+func _physics_process(_delta): 
 	# two modes, human control, agent control
 	# pause tree, send obs, get actions, set actions, unpause tree
 	if n_action_steps % action_repeat != 0:
