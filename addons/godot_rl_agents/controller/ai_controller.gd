@@ -1,5 +1,5 @@
-extends Node3D
-class_name AIController3D
+extends Node
+class_name AIController
 
 @export var reset_after := 1000
 
@@ -9,13 +9,8 @@ var reward := 0.0
 var n_steps := 0
 var needs_reset := false
 
-var _player: Node3D
-
 func _ready():
 	add_to_group("AGENT")
-	
-func init(player: Node3D):
-	_player = player
 	
 #-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
@@ -47,6 +42,12 @@ func _physics_process(delta):
 	n_steps += 1
 	if n_steps > reset_after:
 		needs_reset = true
+		
+	if done:
+		needs_reset = true
+		
+	if needs_reset:
+		reset()
 		
 func get_obs_space():
 	# may need overriding if the obs space is complex
