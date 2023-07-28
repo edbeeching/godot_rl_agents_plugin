@@ -7,7 +7,7 @@ using System.Linq;
 namespace GodotONNX
 {
 	/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/ONNXInference/*'/>
-	public partial class ONNXInference : Node
+	public partial class ONNXInference : GodotObject
 	{
 
 		private InferenceSession session;
@@ -17,7 +17,7 @@ namespace GodotONNX
 		private string modelPath;
 		private int batchSize;
 
-		private static SessionOptions SessionOpt;
+		private SessionOptions SessionOpt;
 
 		//init function
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Initialize/*'/>
@@ -25,8 +25,8 @@ namespace GodotONNX
 		{
 			modelPath = Path;
 			batchSize = BatchSize;
-			SessionOpt = SessionConfigurator.GetSessionOptions();
-			session = LoadModel(modelPath);
+            SessionOpt = SessionConfigurator.MakeConfiguredSessionOptions();
+            session = LoadModel(modelPath);
 
 		}
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Run/*'/>
