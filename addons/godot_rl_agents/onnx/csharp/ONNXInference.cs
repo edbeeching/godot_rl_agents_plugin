@@ -17,7 +17,7 @@ namespace GodotONNX
 		private string modelPath;
 		private int batchSize;
 
-		private SessionOptions SessionOpt;
+		private static SessionOptions SessionOpt;
 
 		//init function
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Initialize/*'/>
@@ -50,8 +50,8 @@ namespace GodotONNX
 			};
 			IReadOnlyCollection<string> outputNames = new List<string> { "output", "state_outs" }; //ONNX is sensible to these names, as well as the input names
 
-			IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results;
-
+			IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results; 
+			//We do not use "using" here so we get a better exception explaination later
 			try
 			{
 				results = session.Run(inputs, outputNames);
@@ -83,15 +83,15 @@ namespace GodotONNX
 			output.Add(output2.Name, output2Array);
 
 			//Output is a dictionary of arrays, ex: { "output" : [0.1, 0.2, 0.3, 0.4, ...], "state_outs" : [0.5, ...]}
-			output1.Dispose(); output2.Dispose(); results.Dispose();
+			results.Dispose();
 			return output;
 		}
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Load/*'/>
 		public InferenceSession LoadModel(string Path)
 		{
-			Godot.FileAccess file = FileAccess.Open(Path, Godot.FileAccess.ModeFlags.Read);
+			using Godot.FileAccess file = FileAccess.Open(Path, Godot.FileAccess.ModeFlags.Read);
 			byte[] model = file.GetBuffer((int)file.GetLength());
-			file.Close(); file.Dispose(); //Close the file, then dispose the reference.
+			//file.Close(); file.Dispose(); //Close the file, then dispose the reference.
 			return new InferenceSession(model, SessionOpt); //Load the model
 		}
 		public void FreeDisposables()
