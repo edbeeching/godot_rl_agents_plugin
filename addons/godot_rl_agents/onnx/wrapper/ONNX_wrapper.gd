@@ -1,4 +1,4 @@
-extends Node
+extends Resource
 class_name ONNXModel
 var inferencer_script = load("res://addons/godot_rl_agents/onnx/csharp/ONNXInference.cs")
 
@@ -17,3 +17,8 @@ func run_inference(obs : Array, state_ins : int) -> Dictionary:
 		printerr("Inferencer not initialized")
 		return {}
 	return inferencer.RunInference(obs, state_ins)
+
+func _notification(what):
+	if what == NOTIFICATION_PREDELETE:
+		inferencer.FreeDisposables()
+		inferencer.free()
