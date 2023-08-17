@@ -67,10 +67,19 @@ func _update():
 			_spawn_nodes()	
 
 func _ready() -> void:
-	_make_materials()
-	_spawn_nodes()
-
+	if Engine.is_editor_hint():	
+		assert(get_child_count() > 0,
+		"Grid sensor has no nodes. Please re-update the sensor by changing an inspector parameter from the Godot editor.")
+	else:
+		_spawn_nodes()
+		
+func _initialize_variables() -> void:
+	pass
+	
 func _make_materials() -> void:
+	if _highlighted_box_material != null and _standard_box_material != null:
+		return
+		
 	_standard_box_material = StandardMaterial3D.new()
 	_standard_box_material.set_transparency(1) # ALPHA
 	_standard_box_material.albedo_color = Color(100.0/255.0, 100.0/255.0, 100.0/255.0, 100.0/255.0)
@@ -92,7 +101,6 @@ func _get_collision_mapping() -> Dictionary:
 	return collision_mapping
 
 func _spawn_nodes():
-	print('spawn nodes')
 	for cell in get_children():
 		cell.name = "_%s" % cell.name # Otherwise naming below will fail
 		cell.queue_free()
@@ -108,6 +116,8 @@ func _spawn_nodes():
 	
 	_box_shape = BoxShape3D.new()
 	_box_shape.set_size(Vector3(cell_width, cell_height, cell_width))
+	
+	_make_materials()
 
 	var shift := Vector3(
 		-(grid_size_x/2)*cell_width,
