@@ -72,9 +72,6 @@ func _ready() -> void:
 		"Grid sensor has no nodes. Please re-update the sensor by changing an inspector parameter from the Godot editor.")
 	else:
 		_spawn_nodes()
-		
-func _initialize_variables() -> void:
-	pass
 	
 func _make_materials() -> void:
 	if _highlighted_box_material != null and _standard_box_material != null:
