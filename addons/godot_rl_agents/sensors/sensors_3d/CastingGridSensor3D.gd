@@ -96,8 +96,8 @@ func get_observation():
 			transform.origin = cell_position
 			parameters.transform = transform
 			parameters.shape = _shape
-			parameters.collide_with_areas = true
-			parameters.collide_with_bodies = true
+			parameters.collide_with_areas = collide_with_areas
+			parameters.collide_with_bodies = collide_with_bodies
 			parameters.collision_mask = detection_mask
 			
 			for result in _space.intersect_shape(parameters, 32):
