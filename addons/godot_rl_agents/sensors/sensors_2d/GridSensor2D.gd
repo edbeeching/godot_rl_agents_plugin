@@ -8,7 +8,7 @@ class_name GridSensor2D
 		debug_view = value
 		_update()
 		
-@export_flags_3d_physics var detection_mask := 0:
+@export_flags_2d_physics var detection_mask := 0:
 	get: return detection_mask
 	set(value):
 		detection_mask = value
