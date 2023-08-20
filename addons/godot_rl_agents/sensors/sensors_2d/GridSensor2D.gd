@@ -1,6 +1,6 @@
 @tool
-extends ISensor3D
-class_name GridSensor3D
+extends ISensor2D
+class_name GridSensor2D
 
 @export var debug_view := false:
 	get: return debug_view
@@ -26,13 +26,13 @@ class_name GridSensor3D
 		collide_with_bodies = value
 		_update()
 
-@export_range(0.1, 2, 0.1) var cell_width := 1.0:
+@export_range(1, 200, 0.1) var cell_width := 20.0:
 	get: return cell_width
 	set(value):
 		cell_width = value
 		_update()
 
-@export_range(0.1, 2, 0.1) var cell_height := 1.0:
+@export_range(1, 200, 0.1) var cell_height := 20.0:
 	get: return cell_height
 	set(value):
 		cell_height = value
@@ -44,19 +44,19 @@ class_name GridSensor3D
 		grid_size_x = value
 		_update()
 
-@export_range(1, 21, 2, "or_greater") var grid_size_z := 3:
-	get: return grid_size_z
+@export_range(1, 21, 2, "or_greater") var grid_size_y := 3:
+	get: return grid_size_y
 	set(value):
-		grid_size_z = value
+		grid_size_y = value
 		_update()
 
 var _obs_buffer: PackedFloat64Array
-var _box_shape: BoxShape3D
+var _rectangle_shape: RectangleShape2D
 var _collision_mapping: Dictionary
 var _n_layers_per_cell: int
 
-var _highlighted_box_material: StandardMaterial3D
-var _standard_box_material: StandardMaterial3D
+var _highlighted_cell_color: Color
+var _standard_cell_color: Color
 
 func get_observation():
 	return _obs_buffer
@@ -67,25 +67,18 @@ func _update():
 			_spawn_nodes()	
 
 func _ready() -> void:
-	_make_materials()
+	_set_colors()
 	
 	if Engine.is_editor_hint():	
 		if get_child_count() == 0:
 			_spawn_nodes()
 	else:
 		_spawn_nodes()
-	
-func _make_materials() -> void:
-	if _highlighted_box_material != null and _standard_box_material != null:
-		return
 		
-	_standard_box_material = StandardMaterial3D.new()
-	_standard_box_material.set_transparency(1) # ALPHA
-	_standard_box_material.albedo_color = Color(100.0/255.0, 100.0/255.0, 100.0/255.0, 100.0/255.0)
 	
-	_highlighted_box_material = StandardMaterial3D.new()
-	_highlighted_box_material.set_transparency(1) # ALPHA
-	_highlighted_box_material.albedo_color = Color(255.0/255.0, 100.0/255.0, 100.0/255.0, 100.0/255.0)
+func _set_colors() -> void:
+	_standard_cell_color = Color(100.0/255.0, 100.0/255.0, 100.0/255.0, 100.0/255.0)
+	_highlighted_cell_color = Color(255.0/255.0, 100.0/255.0, 100.0/255.0, 100.0/255.0)
 
 func _get_collision_mapping() -> Dictionary:
 	# defines which layer is mapped to which cell obs index
@@ -109,29 +102,29 @@ func _spawn_nodes():
 	# allocate memory for the observations
 	_n_layers_per_cell = len(_collision_mapping)
 	_obs_buffer = PackedFloat64Array()
-	_obs_buffer.resize(grid_size_x*grid_size_z*_n_layers_per_cell)
+	_obs_buffer.resize(grid_size_x*grid_size_y*_n_layers_per_cell)
 	_obs_buffer.fill(0)
 	#prints(len(_obs_buffer), _obs_buffer )
 	
-	_box_shape = BoxShape3D.new()
-	_box_shape.set_size(Vector3(cell_width, cell_height, cell_width))
+	_rectangle_shape = RectangleShape2D.new()
+	_rectangle_shape.set_size(Vector2(cell_width, cell_height))
 	
-	var shift := Vector3(
+	var shift := Vector2(
 		-(grid_size_x/2)*cell_width,
-		0,
-		-(grid_size_z/2)*cell_width,
+		-(grid_size_y/2)*cell_height,
 	)
 	
 	for i in grid_size_x:
-		for j in grid_size_z:
-			var cell_position =  Vector3(i*cell_width, 0.0, j*cell_width) + shift
+		for j in grid_size_y:
+			var cell_position =  Vector2(i*cell_width, j*cell_height) + shift
 			_create_cell(i, j, cell_position)
 		
 
-func _create_cell(i:int, j:int, position: Vector3):
-	var cell : = Area3D.new()
+func _create_cell(i:int, j:int, position: Vector2):
+	var cell : = Area2D.new()
 	cell.position = position
 	cell.name = "GridCell %s %s" %[i, j]
+	cell.modulate = _standard_cell_color
 	
 	if collide_with_areas:
 		cell.area_entered.connect(_on_cell_area_entered.bind(i, j))
@@ -144,27 +137,25 @@ func _create_cell(i:int, j:int, position: Vector3):
 	cell.collision_layer = 0
 	cell.collision_mask = detection_mask
 	cell.monitorable = true
-	cell.input_ray_pickable = false
 	add_child(cell)
 	cell.set_owner(get_tree().edited_scene_root)
 
-	var col_shape : = CollisionShape3D.new()
-	col_shape.shape = _box_shape
-	col_shape.name = "CollisionShape3D"
+	var col_shape : = CollisionShape2D.new()
+	col_shape.shape = _rectangle_shape
+	col_shape.name = "CollisionShape2D"
 	cell.add_child(col_shape)
 	col_shape.set_owner(get_tree().edited_scene_root)
 	
 	if debug_view:
-		var box = MeshInstance3D.new()
-		box.name = "MeshInstance3D"
-		var box_mesh = BoxMesh.new()
+		var quad = MeshInstance2D.new()
+		quad.name = "MeshInstance2D"
+		var quad_mesh = QuadMesh.new()
 		
-		box_mesh.set_size(Vector3(cell_width, cell_height, cell_width))
-		box_mesh.material = _standard_box_material
+		quad_mesh.set_size(Vector2(cell_width, cell_height))
 		
-		box.mesh = box_mesh
-		cell.add_child(box)
-		box.set_owner(get_tree().edited_scene_root)
+		quad.mesh = quad_mesh
+		cell.add_child(quad)
+		quad.set_owner(get_tree().edited_scene_root)
 
 func _update_obs(cell_i:int, cell_j:int, collision_layer:int, entered: bool):
 	for key in _collision_mapping:
@@ -194,32 +185,31 @@ func _toggle_cell(cell_i:int, cell_j:int):
 	for i in _n_layers_per_cell:
 		n_hits += _obs_buffer[start_index+i]
 		
-	var cell_mesh = cell.get_node_or_null("MeshInstance3D")
 	if n_hits > 0:
-		cell_mesh.mesh.material = _highlighted_box_material
+		cell.modulate = _highlighted_cell_color
 	else:
-		cell_mesh.mesh.material = _standard_box_material
+		cell.modulate = _standard_cell_color
 		
-func _on_cell_area_entered(area:Area3D, cell_i:int, cell_j:int):
+func _on_cell_area_entered(area:Area2D, cell_i:int, cell_j:int):
 	#prints("_on_cell_area_entered", cell_i, cell_j)
 	_update_obs(cell_i, cell_j, area.collision_layer, true)
 	if debug_view:
 		_toggle_cell(cell_i, cell_j)
 	#print(_obs_buffer)
 
-func _on_cell_area_exited(area:Area3D, cell_i:int, cell_j:int):
+func _on_cell_area_exited(area:Area2D, cell_i:int, cell_j:int):
 	#prints("_on_cell_area_exited", cell_i, cell_j)
 	_update_obs(cell_i, cell_j, area.collision_layer, false)
 	if debug_view:
 		_toggle_cell(cell_i, cell_j)
 
-func _on_cell_body_entered(body: Node3D, cell_i:int, cell_j:int):
+func _on_cell_body_entered(body: Node2D, cell_i:int, cell_j:int):
 	#prints("_on_cell_body_entered", cell_i, cell_j)
 	_update_obs(cell_i, cell_j, body.collision_layer, true)
 	if debug_view:
 		_toggle_cell(cell_i, cell_j)
 
-func _on_cell_body_exited(body: Node3D, cell_i:int, cell_j:int):
+func _on_cell_body_exited(body: Node2D, cell_i:int, cell_j:int):
 	#prints("_on_cell_body_exited", cell_i, cell_j)
 	_update_obs(cell_i, cell_j, body.collision_layer, false)
 	if debug_view:
