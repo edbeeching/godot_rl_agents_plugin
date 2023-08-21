@@ -20,7 +20,8 @@ class_name GridSensor3D
 		collide_with_areas = value
 		_update()
 
-@export var collide_with_bodies := true:
+@export var collide_with_bodies := false:
+	# NOTE! The sensor will not detect StaticBody3D, add an area to static bodies to detect them
 	get: return collide_with_bodies
 	set(value):
 		collide_with_bodies = value
@@ -60,7 +61,10 @@ var _standard_box_material: StandardMaterial3D
 
 func get_observation():
 	return _obs_buffer
-	
+
+func reset():
+	_obs_buffer.fill(0)
+
 func _update():
 	if Engine.is_editor_hint():
 		if is_node_ready():
@@ -140,6 +144,9 @@ func _create_cell(i:int, j:int, position: Vector3):
 	if collide_with_bodies:
 		cell.body_entered.connect(_on_cell_body_entered.bind(i, j))
 		cell.body_exited.connect(_on_cell_body_exited.bind(i, j))
+		
+#		cell.body_shape_entered.connect(_on_cell_body_shape_entered.bind(i, j))
+#		cell.body_shape_exited.connect(_on_cell_body_shape_exited.bind(i, j))
 	
 	cell.collision_layer = 0
 	cell.collision_mask = detection_mask

@@ -8,26 +8,20 @@ n_rays_width = 4.0
 n_rays_height = 2.0
 ray_length = 11.0
 
-[node name="@node_0 0@18991" type="RayCast3D" parent="."]
-target_position = Vector3(-4.06608, -2.84701, 9.81639)
-
-[node name="node_0 1" type="RayCast3D" parent="."]
-target_position = Vector3(-4.06608, 2.84701, 9.81639)
-
-[node name="@node_1 0@18992" type="RayCast3D" parent="."]
+[node name="node_1 0" type="RayCast3D" parent="."]
 target_position = Vector3(-1.38686, -2.84701, 10.5343)
 
-[node name="@node_1 1@18993" type="RayCast3D" parent="."]
+[node name="node_1 1" type="RayCast3D" parent="."]
 target_position = Vector3(-1.38686, 2.84701, 10.5343)
 
-[node name="@node_2 0@18994" type="RayCast3D" parent="."]
+[node name="node_2 0" type="RayCast3D" parent="."]
 target_position = Vector3(1.38686, -2.84701, 10.5343)
 
-[node name="@node_2 1@18995" type="RayCast3D" parent="."]
+[node name="node_2 1" type="RayCast3D" parent="."]
 target_position = Vector3(1.38686, 2.84701, 10.5343)
 
-[node name="@node_3 0@18996" type="RayCast3D" parent="."]
+[node name="node_3 0" type="RayCast3D" parent="."]
 target_position = Vector3(4.06608, -2.84701, 9.81639)
 
-[node name="@node_3 1@18997" type="RayCast3D" parent="."]
+[node name="node_3 1" type="RayCast3D" parent="."]
 target_position = Vector3(4.06608, 2.84701, 9.81639)
