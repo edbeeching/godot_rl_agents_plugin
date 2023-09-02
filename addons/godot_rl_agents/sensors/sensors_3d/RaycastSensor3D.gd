@@ -61,11 +61,15 @@ var geo = null
 
 func _update():
 	if Engine.is_editor_hint():
-		_spawn_nodes()	
-
+		if is_node_ready():
+			_spawn_nodes()	
 
 func _ready() -> void:
-	_spawn_nodes()
+	if Engine.is_editor_hint():	
+		if get_child_count() == 0:
+			_spawn_nodes()
+	else:
+		_spawn_nodes()
 
 func _spawn_nodes():
 	print("spawning nodes")
