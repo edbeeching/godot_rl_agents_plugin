@@ -179,7 +179,7 @@ func _get_dict_json_message():
 	return json_data
 
 func _send_dict_as_json_message(dict):
-	stream.put_string(JSON.stringify(dict))
+	stream.put_string(JSON.stringify(dict, "", false))
 
 func _send_env_info():
 	var json_dict = _get_dict_json_message()
