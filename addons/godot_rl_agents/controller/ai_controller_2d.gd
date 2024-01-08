@@ -1,7 +1,12 @@
 extends Node2D
 class_name AIController2D
 
+enum ControlModes {INHERIT_FROM_SYNC, HUMAN, TRAINING, ONNX_INFERENCE}
+@export var control_mode: ControlModes = ControlModes.INHERIT_FROM_SYNC
+@export var onnx_model_path := ""
 @export var reset_after := 1000
+
+var onnx_model: ONNXModel
 
 var heuristic := "human"
 var done := false
