@@ -185,7 +185,7 @@ func _extract_action_dict(action_array: Array, action_space: Dictionary):
 
 
 ## For AIControllers that inherit mode from sync, sets the correct mode.
-func set_agent_mode(agent: Node):
+func _set_agent_mode(agent: Node):
 	var agent_inherits_mode: bool = agent.control_mode == agent.ControlModes.INHERIT_FROM_SYNC
 
 	if agent_inherits_mode:
@@ -201,9 +201,7 @@ func set_agent_mode(agent: Node):
 func _get_agents():
 	all_agents = get_tree().get_nodes_in_group("AGENT")
 	for agent in all_agents:
-		agent = agent as Node
-
-		set_agent_mode(agent)
+		_set_agent_mode(agent)
 
 		if agent.control_mode == agent.ControlModes.TRAINING:
 			agents_training.append(agent)
