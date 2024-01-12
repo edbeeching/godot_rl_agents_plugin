@@ -119,6 +119,11 @@ func _physics_process(_delta):
 
 	n_action_steps += 1
 
+	_training_process()
+	_inference_process()
+
+
+func _training_process():
 	if connected:
 		get_tree().set_pause(true)
 
@@ -145,7 +150,8 @@ func _physics_process(_delta):
 
 		var handled = handle_message()
 
-	# Inference
+
+func _inference_process():
 	if agents_inference.size() > 0:
 		var obs: Array = _get_obs_from_agents(agents_inference)
 		var actions = []
@@ -163,7 +169,6 @@ func _physics_process(_delta):
 		_set_agent_actions(actions, agents_inference)
 		need_to_send_obs = true
 		get_tree().set_pause(false)
-
 
 func _extract_action_dict(action_array: Array, action_space: Dictionary):
 	var index = 0
@@ -196,6 +201,8 @@ func set_agent_mode(agent: Node):
 func _get_agents():
 	all_agents = get_tree().get_nodes_in_group("AGENT")
 	for agent in all_agents:
+		agent = agent as Node
+
 		set_agent_mode(agent)
 
 		if agent.control_mode == agent.ControlModes.TRAINING:
