@@ -88,14 +88,14 @@ func _initialize():
 			_action_space_inference.append(agent.get_action_space())
 
 			var agent_onnx_model: ONNXModel
-			if agent.control_mode == agent.ControlModes.INHERIT_FROM_SYNC:
+			if agent.onnx_model_path.is_empty():
 				agent_onnx_model = onnx_models[onnx_model_path]
 			else:
 				if not onnx_models.has(agent.onnx_model_path):
 					assert(
 						FileAccess.file_exists(agent.onnx_model_path),
 						(
-							"Onnx Model Path set on %s node does not exist: %s" 
+							"Onnx Model Path set on %s node does not exist: %s"
 							% [agent.get_path(), agent.onnx_model_path]
 						)
 					)
@@ -179,19 +179,26 @@ func _extract_action_dict(action_array: Array, action_space: Dictionary):
 	return result
 
 
+## For AIControllers that inherit mode from sync, sets the correct mode.
+func set_agent_mode(agent: Node):
+	var agent_inherits_mode: bool = agent.control_mode == agent.ControlModes.INHERIT_FROM_SYNC
+
+	if agent_inherits_mode:
+		match control_mode:
+			ControlModes.HUMAN:
+				agent.control_mode = agent.control_modes.HUMAN
+			ControlModes.TRAINING:
+				agent.control_mode = agent.control_modes.TRAINING
+			ControlModes.ONNX_INFERENCE:
+				agent.control_mode = agent.control_modes.ONNX_INFERENCE
+
+
 func _get_agents():
 	all_agents = get_tree().get_nodes_in_group("AGENT")
 	for agent in all_agents:
-		agent = agent as AIController3D
-		var agent_inherits_mode: bool = agent.control_mode == agent.ControlModes.INHERIT_FROM_SYNC
+		agent = agent as Node
 
-		if agent_inherits_mode:
-			match control_mode:
-				ControlModes.TRAINING:
-					agents_training.append(agent)
-				ControlModes.ONNX_INFERENCE:
-					agents_inference.append(agent)
-			continue
+		set_agent_mode(agent)
 
 		if agent.control_mode == agent.ControlModes.TRAINING:
 			agents_training.append(agent)
