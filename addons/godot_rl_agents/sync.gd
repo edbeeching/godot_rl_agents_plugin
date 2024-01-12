@@ -195,7 +195,7 @@ func _get_agents():
 
 		if agent.control_mode == agent.ControlModes.TRAINING:
 			agents_training.append(agent)
-		if agent.control_mode == agent.ControlModes.ONNX_INFERENCE:
+		elif agent.control_mode == agent.ControlModes.ONNX_INFERENCE:
 			agents_inference.append(agent)
 
 
