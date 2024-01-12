@@ -196,8 +196,6 @@ func set_agent_mode(agent: Node):
 func _get_agents():
 	all_agents = get_tree().get_nodes_in_group("AGENT")
 	for agent in all_agents:
-		agent = agent as Node
-
 		set_agent_mode(agent)
 
 		if agent.control_mode == agent.ControlModes.TRAINING:
