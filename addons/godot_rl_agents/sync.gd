@@ -62,6 +62,15 @@ func _initialize():
 
 	_set_heuristic("human", all_agents)
 
+	_initialize_training_agents()
+	_initialize_inference_agents()
+
+	_set_seed()
+	_set_action_repeat()
+	initialized = true
+
+
+func _initialize_training_agents():
 	if agents_training.size() > 0:
 		_obs_space = agents_training[0].get_obs_space()
 		_action_space = agents_training[0].get_action_space()
@@ -76,6 +85,8 @@ func _initialize():
 				"Did you start the training server using e.g. `gdrl` from the console?"
 			)
 
+
+func _initialize_inference_agents():
 	if agents_inference.size() > 0:
 		if control_mode == ControlModes.ONNX_INFERENCE:
 			assert(
@@ -121,10 +132,6 @@ func _initialize():
 
 			agent.onnx_model = agent_onnx_model
 		_set_heuristic("model", agents_inference)
-
-	_set_seed()
-	_set_action_repeat()
-	initialized = true
 
 
 func _physics_process(_delta):
