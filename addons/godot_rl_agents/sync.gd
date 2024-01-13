@@ -92,11 +92,18 @@ func _initialize():
 				assert(
 					onnx_models.has(onnx_model_path),
 					(
-						"Node %s has no onnx model path set " % agent.get_path() + 
-						"and sync node's control mode is not set to OnnxInference. " + 
-						"Either add the path to the AIController, " + 
-						"or if you want to use the path set on sync node instead, " + 
-						"set control mode to OnnxInference."
+						"Node %s has no onnx model path set " % agent.get_path()
+						+ "and sync node's control mode is not set to OnnxInference. "
+						+ "Either add the path to the AIController, "
+						+ "or if you want to use the path set on sync node instead, "
+						+ "set control mode to OnnxInference."
+					)
+				)
+				print(
+					(
+						"Info: AIController %s" % agent.get_path()
+						+ "has no onnx model path set. "
+						+ "Using path set on the sync node instead."
 					)
 				)
 				agent_onnx_model = onnx_models[onnx_model_path]
