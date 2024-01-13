@@ -191,11 +191,11 @@ func _set_agent_mode(agent: Node):
 	if agent_inherits_mode:
 		match control_mode:
 			ControlModes.HUMAN:
-				agent.control_mode = agent.control_modes.HUMAN
+				agent.control_mode = agent.ControlModes.HUMAN
 			ControlModes.TRAINING:
-				agent.control_mode = agent.control_modes.TRAINING
+				agent.control_mode = agent.ControlModes.TRAINING
 			ControlModes.ONNX_INFERENCE:
-				agent.control_mode = agent.control_modes.ONNX_INFERENCE
+				agent.control_mode = agent.ControlModes.ONNX_INFERENCE
 
 
 func _get_agents():
