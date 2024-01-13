@@ -89,6 +89,16 @@ func _initialize():
 
 			var agent_onnx_model: ONNXModel
 			if agent.onnx_model_path.is_empty():
+				assert(
+					onnx_models.has(onnx_model_path),
+					(
+						"Node %s has no onnx model path set " % agent.get_path() + 
+						"and sync node's control mode is not set to OnnxInference. " + 
+						"Either add the path to the AIController, " + 
+						"or if you want to use the path set on sync node instead, " + 
+						"set control mode to OnnxInference."
+					)
+				)
 				agent_onnx_model = onnx_models[onnx_model_path]
 			else:
 				if not onnx_models.has(agent.onnx_model_path):
@@ -169,6 +179,7 @@ func _inference_process():
 		_set_agent_actions(actions, agents_inference)
 		need_to_send_obs = true
 		get_tree().set_pause(false)
+
 
 func _extract_action_dict(action_array: Array, action_space: Dictionary):
 	var index = 0
