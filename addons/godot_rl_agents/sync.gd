@@ -69,7 +69,6 @@ func _initialize():
 	_set_action_repeat()
 	initialized = true
 
-
 func _initialize_training_agents():
 	if agents_training.size() > 0:
 		_obs_space = agents_training[0].get_obs_space()
@@ -84,7 +83,6 @@ func _initialize_training_agents():
 				"Couldn't connect to Python server, using human controls instead. ",
 				"Did you start the training server using e.g. `gdrl` from the console?"
 			)
-
 
 func _initialize_inference_agents():
 	if agents_inference.size() > 0:
@@ -110,12 +108,10 @@ func _initialize_inference_agents():
 						+ "set control mode to OnnxInference."
 					)
 				)
-				print(
-					(
-						"Info: AIController %s" % agent.get_path()
-						+ "has no onnx model path set. "
-						+ "Using path set on the sync node instead."
-					)
+				prints(
+						"Info: AIController %s" % agent.get_path(),
+						"has no onnx model path set.",
+						"Using path set on the sync node instead."
 				)
 				agent_onnx_model = onnx_models[onnx_model_path]
 			else:
@@ -132,7 +128,6 @@ func _initialize_inference_agents():
 
 			agent.onnx_model = agent_onnx_model
 		_set_heuristic("model", agents_inference)
-
 
 func _physics_process(_delta):
 	# two modes, human control, agent control
