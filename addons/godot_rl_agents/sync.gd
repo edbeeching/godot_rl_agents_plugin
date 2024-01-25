@@ -87,6 +87,7 @@ func _initialize_demo_recording():
 		current_demo_trajectory.resize(2)
 		current_demo_trajectory[0] = []
 		current_demo_trajectory[1] = []
+		agent_demo_record.heuristic = "demo_record"
 
 
 func _initialize_training_agents():
