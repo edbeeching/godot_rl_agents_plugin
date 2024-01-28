@@ -61,8 +61,16 @@ func set_action(action) -> void:
 	assert(false, "the get set_action method is not implemented when extending from ai_controller")
 
 
-# -----------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
 
+
+#-- Methods that sometimes need implementing using the "extend script" option in Godot --#
+# Only needed if you are recording expert demos with this AIController
+func get_action() -> Array:
+	assert(false, "the get set_action method is not implemented in extended AIController but demo_recorder is used")
+	return []
+
+# -----------------------------------------------------------------------------#
 
 func _physics_process(delta):
 	n_steps += 1
