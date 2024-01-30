@@ -25,6 +25,7 @@ var should_connect = true
 var all_agents: Array
 var agents_training: Array
 var agents_inference: Array
+var agents_heuristic: Array
 
 ## For recording expert demos
 var agent_demo_record: Node
@@ -76,18 +77,6 @@ func _initialize():
 	_set_seed()
 	_set_action_repeat()
 	initialized = true
-
-
-func _initialize_demo_recording():
-	if agent_demo_record:
-		InputMap.add_action("RemoveLastDemoEpisode")
-		InputMap.action_add_event(
-			"RemoveLastDemoEpisode", agent_demo_record.remove_last_episode_key
-		)
-		current_demo_trajectory.resize(2)
-		current_demo_trajectory[0] = []
-		current_demo_trajectory[1] = []
-		agent_demo_record.heuristic = "demo_record"
 
 
 func _initialize_training_agents():
@@ -152,6 +141,18 @@ func _initialize_inference_agents():
 		_set_heuristic("model", agents_inference)
 
 
+func _initialize_demo_recording():
+	if agent_demo_record:
+		InputMap.add_action("RemoveLastDemoEpisode")
+		InputMap.action_add_event(
+			"RemoveLastDemoEpisode", agent_demo_record.remove_last_episode_key
+		)
+		current_demo_trajectory.resize(2)
+		current_demo_trajectory[0] = []
+		current_demo_trajectory[1] = []
+		agent_demo_record.heuristic = "demo_record"
+
+
 func _physics_process(_delta):
 	# two modes, human control, agent control
 	# pause tree, send obs, get actions, set actions, unpause tree
@@ -166,46 +167,7 @@ func _physics_process(_delta):
 
 	_training_process()
 	_inference_process()
-
-
-func _demo_record_process():
-	if not agent_demo_record:
-		return
-
-	if Input.is_action_just_pressed("RemoveLastDemoEpisode"):
-		print("[Sync script][Demo recorder] Removing last recorded episode.")
-		demo_trajectories.remove_at(demo_trajectories.size() - 1)
-		print("Remaining episode count: %d" % demo_trajectories.size())
-
-	if n_action_steps % agent_demo_record.action_repeat != 0:
-		return
-
-	var obs_dict: Dictionary = agent_demo_record.get_obs()
-
-	# Get the current obs from the agent
-	assert(
-		obs_dict.has("obs"),
-		"Demo recorder needs an 'obs' key in get_obs() returned dictionary to record obs from."
-	)
-	current_demo_trajectory[0].append(obs_dict.obs)
-
-	# Get the action applied for the current obs from the agent
-	agent_demo_record.set_action()
-	var acts = agent_demo_record.get_action()
-
-	var terminal = agent_demo_record.get_done()
-	# Record actions only for non-terminal states
-	if terminal:
-		agent_demo_record.set_done_false()
-	else:
-		current_demo_trajectory[1].append(acts)
-
-	if terminal:
-		#current_demo_trajectory[2].append(true)
-		demo_trajectories.append(current_demo_trajectory.duplicate(true))
-		print("[Sync script][Demo recorder] Recorded episode count: %d" % demo_trajectories.size())
-		current_demo_trajectory[0].clear()
-		current_demo_trajectory[1].clear()
+	_heuristic_process()
 
 
 func _training_process():
@@ -252,8 +214,53 @@ func _inference_process():
 			actions.append(action_dict)
 
 		_set_agent_actions(actions, agents_inference)
-		need_to_send_obs = true
+		_reset_agents_if_done(agents_inference)
 		get_tree().set_pause(false)
+
+
+func _demo_record_process():
+	if not agent_demo_record:
+		return
+
+	if Input.is_action_just_pressed("RemoveLastDemoEpisode"):
+		print("[Sync script][Demo recorder] Removing last recorded episode.")
+		demo_trajectories.remove_at(demo_trajectories.size() - 1)
+		print("Remaining episode count: %d" % demo_trajectories.size())
+
+	if n_action_steps % agent_demo_record.action_repeat != 0:
+		return
+
+	var obs_dict: Dictionary = agent_demo_record.get_obs()
+
+	# Get the current obs from the agent
+	assert(
+		obs_dict.has("obs"),
+		"Demo recorder needs an 'obs' key in get_obs() returned dictionary to record obs from."
+	)
+	current_demo_trajectory[0].append(obs_dict.obs)
+
+	# Get the action applied for the current obs from the agent
+	agent_demo_record.set_action()
+	var acts = agent_demo_record.get_action()
+
+	var terminal = agent_demo_record.get_done()
+	# Record actions only for non-terminal states
+	if terminal:
+		agent_demo_record.set_done_false()
+	else:
+		current_demo_trajectory[1].append(acts)
+
+	if terminal:
+		#current_demo_trajectory[2].append(true)
+		demo_trajectories.append(current_demo_trajectory.duplicate(true))
+		print("[Sync script][Demo recorder] Recorded episode count: %d" % demo_trajectories.size())
+		current_demo_trajectory[0].clear()
+		current_demo_trajectory[1].clear()
+
+
+func _heuristic_process():
+	for agent in agents_heuristic:
+		_reset_agents_if_done(agents_heuristic)
 
 
 func _extract_action_dict(action_array: Array, action_space: Dictionary):
@@ -293,6 +300,8 @@ func _get_agents():
 			agents_training.append(agent)
 		elif agent.control_mode == agent.ControlModes.ONNX_INFERENCE:
 			agents_inference.append(agent)
+		elif agent.control_mode == agent.ControlModes.HUMAN:
+			agents_heuristic.append(agent)
 		elif agent.control_mode == agent.ControlModes.RECORD_EXPERT_DEMOS:
 			assert(
 				not agent_demo_record,
