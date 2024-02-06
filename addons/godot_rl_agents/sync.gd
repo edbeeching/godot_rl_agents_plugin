@@ -14,7 +14,7 @@ var onnx_models: Dictionary
 @onready var start_time = Time.get_ticks_msec()
 
 const MAJOR_VERSION := "0"
-const MINOR_VERSION := "3"
+const MINOR_VERSION := "7"
 const DEFAULT_PORT := "11008"
 const DEFAULT_SEED := "1"
 var stream: StreamPeerTCP = null
@@ -25,6 +25,7 @@ var should_connect = true
 var all_agents: Array
 var agents_training: Array
 var agents_inference: Array
+var agents_heuristic: Array
 
 var need_to_send_obs = false
 var args = null
@@ -69,6 +70,7 @@ func _initialize():
 	_set_action_repeat()
 	initialized = true
 
+
 func _initialize_training_agents():
 	if agents_training.size() > 0:
 		_obs_space = agents_training[0].get_obs_space()
@@ -83,6 +85,7 @@ func _initialize_training_agents():
 				"Couldn't connect to Python server, using human controls instead. ",
 				"Did you start the training server using e.g. `gdrl` from the console?"
 			)
+
 
 func _initialize_inference_agents():
 	if agents_inference.size() > 0:
@@ -109,9 +112,9 @@ func _initialize_inference_agents():
 					)
 				)
 				prints(
-						"Info: AIController %s" % agent.get_path(),
-						"has no onnx model path set.",
-						"Using path set on the sync node instead."
+					"Info: AIController %s" % agent.get_path(),
+					"has no onnx model path set.",
+					"Using path set on the sync node instead."
 				)
 				agent_onnx_model = onnx_models[onnx_model_path]
 			else:
@@ -129,9 +132,11 @@ func _initialize_inference_agents():
 			agent.onnx_model = agent_onnx_model
 		_set_heuristic("model", agents_inference)
 
+
 func _physics_process(_delta):
 	# two modes, human control, agent control
 	# pause tree, send obs, get actions, set actions, unpause tree
+
 	if n_action_steps % action_repeat != 0:
 		n_action_steps += 1
 		return
@@ -140,6 +145,7 @@ func _physics_process(_delta):
 
 	_training_process()
 	_inference_process()
+	_heuristic_process()
 
 
 func _training_process():
@@ -186,8 +192,13 @@ func _inference_process():
 			actions.append(action_dict)
 
 		_set_agent_actions(actions, agents_inference)
-		need_to_send_obs = true
+		_reset_agents_if_done(agents_inference)
 		get_tree().set_pause(false)
+
+
+func _heuristic_process():
+	for agent in agents_heuristic:
+		_reset_agents_if_done(agents_heuristic)
 
 
 func _extract_action_dict(action_array: Array, action_space: Dictionary):
@@ -227,6 +238,8 @@ func _get_agents():
 			agents_training.append(agent)
 		elif agent.control_mode == agent.ControlModes.ONNX_INFERENCE:
 			agents_inference.append(agent)
+		elif agent.control_mode == agent.ControlModes.HUMAN:
+			agents_heuristic.append(agent)
 
 
 func _set_heuristic(heuristic, agents: Array):
