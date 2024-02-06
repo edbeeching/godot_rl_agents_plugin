@@ -14,7 +14,7 @@ var onnx_models: Dictionary
 @onready var start_time = Time.get_ticks_msec()
 
 const MAJOR_VERSION := "0"
-const MINOR_VERSION := "7"
+const MINOR_VERSION := "7" 
 const DEFAULT_PORT := "11008"
 const DEFAULT_SEED := "1"
 var stream: StreamPeerTCP = null
