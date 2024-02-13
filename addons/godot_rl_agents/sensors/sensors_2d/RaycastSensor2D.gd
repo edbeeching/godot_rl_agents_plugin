@@ -29,10 +29,9 @@ class_name RaycastSensor2D
 	set(value):
 		n_rays = value
 		_update()
-
-@export_range(5, 200, 5.0) var ray_length := 200:
-	get:
-		return ray_length
+	
+@export_range(5,2000,5.0) var ray_length := 200:
+	get: return ray_length
 	set(value):
 		ray_length = value
 		_update()
