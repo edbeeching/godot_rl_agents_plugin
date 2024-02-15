@@ -18,7 +18,7 @@
 			</summary>
 			<param name="obs">Dictionary containing all observations.</param>
 			<param name="state_ins">How many different agents are creating these observations.</param>
-			<returns>A Dictionary of arrays, containing instructions based on the observations.</returns>
+			<returns>A Dictionary of arrays, containing instructions based on the observations. Arrays can hold either C# longs for discrete-only action space, or C# floats. </returns>
 		</Run>
 		<Load>
 			<summary>

@@ -3,18 +3,18 @@ using Microsoft.ML.OnnxRuntime;
 
 namespace GodotONNX
 {
-	/// <include file='docs/SessionConfigurator.xml' path='docs/members[@name="SessionConfigurator"]/SessionConfigurator/*'/>
+    /// <include file='docs/SessionConfigurator.xml' path='docs/members[@name="SessionConfigurator"]/SessionConfigurator/*'/>
 
-	public static class SessionConfigurator
-	{
-		public enum ComputeName
-		{
-			CUDA,
-			ROCm,
-			DirectML,
-			CoreML,
-			CPU
-		}
+    public static class SessionConfigurator
+    {
+        public enum ComputeName
+        {
+            CUDA,
+            ROCm,
+            DirectML,
+            CoreML,
+            CPU
+        }
 
         /// <include file='docs/SessionConfigurator.xml' path='docs/members[@name="SessionConfigurator"]/GetSessionOptions/*'/>
         public static SessionOptions MakeConfiguredSessionOptions()
@@ -105,27 +105,27 @@ namespace GodotONNX
 
         /// <include file='docs/SessionConfigurator.xml' path='docs/members[@name="SessionConfigurator"]/ComputeCheck/*'/>
         public static ComputeName ComputeCheck()
-		{
-			string adapterName = Godot.RenderingServer.GetVideoAdapterName();
-			//string adapterVendor = Godot.RenderingServer.GetVideoAdapterVendor();
-			adapterName = adapterName.ToUpper(new System.Globalization.CultureInfo(""));
-			//TODO: GPU vendors for MacOS, what do they even use these days?
-		  
-			if (adapterName.Contains("INTEL"))
-			{
-				return ComputeName.DirectML;
-			}
-			if (adapterName.Contains("AMD") || adapterName.Contains("RADEON"))
-			{
-				return ComputeName.DirectML;
-			}
-			if (adapterName.Contains("NVIDIA"))
-			{
-				return ComputeName.CUDA;
-			}
+        {
+            string adapterName = Godot.RenderingServer.GetVideoAdapterName();
+            //string adapterVendor = Godot.RenderingServer.GetVideoAdapterVendor();
+            adapterName = adapterName.ToUpper(new System.Globalization.CultureInfo(""));
+            //TODO: GPU vendors for MacOS, what do they even use these days?
 
-			GD.Print("Graphics Card not recognized."); //Should use CPU
-			return ComputeName.CPU;
-		}
-	}
+            if (adapterName.Contains("INTEL"))
+            {
+                return ComputeName.DirectML;
+            }
+            if (adapterName.Contains("AMD") || adapterName.Contains("RADEON"))
+            {
+                return ComputeName.DirectML;
+            }
+            if (adapterName.Contains("NVIDIA"))
+            {
+                return ComputeName.CUDA;
+            }
+
+            GD.Print("Graphics Card not recognized."); //Should use CPU
+            return ComputeName.CPU;
+        }
+    }
 }
