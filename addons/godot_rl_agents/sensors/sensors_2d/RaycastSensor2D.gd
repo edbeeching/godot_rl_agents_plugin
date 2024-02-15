@@ -29,9 +29,10 @@ class_name RaycastSensor2D
 	set(value):
 		n_rays = value
 		_update()
-	
-@export_range(5,2000,5.0) var ray_length := 200:
-	get: return ray_length
+
+@export_range(5, 3000, 5.0) var ray_length := 200:
+	get:
+		return ray_length
 	set(value):
 		ray_length = value
 		_update()
@@ -93,24 +94,18 @@ func _spawn_nodes():
 		_angles.append(start + i * step)
 
 
-func _physics_process(delta: float) -> void:
-	if self._active:
-		self._obs = calculate_raycasts()
-
-
 func get_observation() -> Array:
-	if len(self._obs) == 0:
-		print("obs was null, forcing raycast update")
-		return self.calculate_raycasts()
-	return self._obs
+	return self.calculate_raycasts()
 
 
 func calculate_raycasts() -> Array:
 	var result = []
 	for ray in rays:
+		ray.enabled = true
 		ray.force_raycast_update()
 		var distance = _get_raycast_distance(ray)
 		result.append(distance)
+		ray.enabled = false
 	return result
 
 
