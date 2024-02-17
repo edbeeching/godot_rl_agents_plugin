@@ -30,7 +30,7 @@ class_name RaycastSensor2D
 		n_rays = value
 		_update()
 
-@export_range(5, 200, 5.0) var ray_length := 200:
+@export_range(5, 3000, 5.0) var ray_length := 200:
 	get:
 		return ray_length
 	set(value):
@@ -84,7 +84,7 @@ func _spawn_nodes():
 			Vector2(ray_length * cos(deg_to_rad(angle)), ray_length * sin(deg_to_rad(angle)))
 		)
 		ray.set_name("node_" + str(i))
-		ray.enabled = true
+		ray.enabled = false
 		ray.collide_with_areas = collide_with_areas
 		ray.collide_with_bodies = collide_with_bodies
 		ray.collision_mask = collision_mask
@@ -94,24 +94,18 @@ func _spawn_nodes():
 		_angles.append(start + i * step)
 
 
-func _physics_process(delta: float) -> void:
-	if self._active:
-		self._obs = calculate_raycasts()
-
-
 func get_observation() -> Array:
-	if len(self._obs) == 0:
-		print("obs was null, forcing raycast update")
-		return self.calculate_raycasts()
-	return self._obs
+	return self.calculate_raycasts()
 
 
 func calculate_raycasts() -> Array:
 	var result = []
 	for ray in rays:
+		ray.enabled = true
 		ray.force_raycast_update()
 		var distance = _get_raycast_distance(ray)
 		result.append(distance)
+		ray.enabled = false
 	return result
 
 
