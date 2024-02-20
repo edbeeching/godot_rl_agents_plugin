@@ -26,11 +26,9 @@ func _ready():
 	sub_viewport.size = render_image_resolution
 	camera_texture.scale = displayed_image_scale_factor
 
-	if downscale_image:
+	if downscale_image and display_downscaled_image:
 		camera_texture.visible = false
-
-		if display_downscaled_image:
-			processed_texture.scale = displayed_image_scale_factor
+		processed_texture.scale = displayed_image_scale_factor
 	else:
 		processed_texture.visible = false
 
