@@ -16,7 +16,7 @@ var camera_pixels = null
 @export_group("Downscale image options")
 ## Enable to downscale the rendered image before sending the obs.
 @export var downscale_image: bool = false
-## If downscale_image is true, will display the downscaled imasge instead of rendered image.
+## If downscale_image is true, will display the downscaled image instead of rendered image.
 @export var display_downscaled_image: bool = true
 ## This is the resolution of the image that will be sent after downscaling
 @export var resized_image_resolution := Vector2(36, 36)
