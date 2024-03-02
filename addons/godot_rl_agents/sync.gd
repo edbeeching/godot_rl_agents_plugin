@@ -14,7 +14,7 @@ var onnx_models: Dictionary
 @onready var start_time = Time.get_ticks_msec()
 
 const MAJOR_VERSION := "0"
-const MINOR_VERSION := "7" 
+const MINOR_VERSION := "7"
 const DEFAULT_PORT := "11008"
 const DEFAULT_SEED := "1"
 var stream: StreamPeerTCP = null
@@ -29,6 +29,8 @@ var agents_heuristic: Array
 
 ## For recording expert demos
 var agent_demo_record: Node
+## File path for writing recorded trajectories
+var expert_demo_save_path: String
 ## Stores recorded trajectories
 var demo_trajectories: Array
 ## A trajectory includes obs: Array, acts: Array, terminal (set in Python env instead)
@@ -143,6 +145,12 @@ func _initialize_inference_agents():
 
 func _initialize_demo_recording():
 	if agent_demo_record:
+		expert_demo_save_path = agent_demo_record.expert_demo_save_path
+		assert(
+			not expert_demo_save_path.is_empty(),
+			"Expert demo save path set in %s is empty." % agent_demo_record.get_path()
+		)
+
 		InputMap.add_action("RemoveLastDemoEpisode")
 		InputMap.action_add_event(
 			"RemoveLastDemoEpisode", agent_demo_record.remove_last_episode_key
@@ -522,14 +530,14 @@ func clamp_array(arr: Array, min: float, max: float):
 	return output
 
 
-## Save recorded export demos on window exit (Close window instead of "Stop" button in Godot Editor)
+## Save recorded export demos on window exit (Close game window instead of "Stop" button in Godot Editor)
 func _notification(what):
-	if not agent_demo_record:
+	if demo_trajectories.size() == 0 or expert_demo_save_path.is_empty():
 		return
 
 	if what == NOTIFICATION_PREDELETE:
 		var json_string = JSON.stringify(demo_trajectories, "", false)
-		var file = FileAccess.open(agent_demo_record.expert_demo_save_path, FileAccess.WRITE)
+		var file = FileAccess.open(expert_demo_save_path, FileAccess.WRITE)
 
 		if not file:
 			var error: Error = FileAccess.get_open_error()
