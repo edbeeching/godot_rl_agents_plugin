@@ -49,7 +49,7 @@ func get_reward() -> float:
 func get_action_space() -> Dictionary:
 	assert(
 		false,
-		"the get get_action_space method is not implemented when extending from ai_controller"
+		"the get_action_space method is not implemented when extending from ai_controller"
 	)
 	return {
 		"example_actions_continous": {"size": 2, "action_type": "continuous"},
@@ -58,7 +58,7 @@ func get_action_space() -> Dictionary:
 
 
 func set_action(action) -> void:
-	assert(false, "the get set_action method is not implemented when extending from ai_controller")
+	assert(false, "the set_action method is not implemented when extending from ai_controller")
 
 
 #-----------------------------------------------------------------------------#
@@ -67,7 +67,7 @@ func set_action(action) -> void:
 #-- Methods that sometimes need implementing using the "extend script" option in Godot --#
 # Only needed if you are recording expert demos with this AIController
 func get_action() -> Array:
-	assert(false, "the get set_action method is not implemented in extended AIController but demo_recorder is used")
+	assert(false, "the get_action method is not implemented in extended AIController but demo_recorder is used")
 	return []
 
 # -----------------------------------------------------------------------------#
