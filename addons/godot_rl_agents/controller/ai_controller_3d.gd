@@ -58,7 +58,7 @@ func get_action_space() -> Dictionary:
 
 
 func set_action(action) -> void:
-	assert(false, "the get set_action method is not implemented when extending from ai_controller")
+	assert(false, "the set_action method is not implemented when extending from ai_controller")
 
 
 #-----------------------------------------------------------------------------#
