@@ -16,6 +16,11 @@ enum ControlModes { INHERIT_FROM_SYNC, HUMAN, TRAINING, ONNX_INFERENCE, RECORD_E
 ## the recorded demonstrations.
 @export var action_repeat: int = 1
 
+@export_group("Multi-policy mode options")
+## Allows you to set certain agents to use different policies.
+## Changing has no affect with default SB3 training.
+@export var policy_name: String = "shared_policy"
+
 var onnx_model: ONNXModel
 
 var heuristic := "human"

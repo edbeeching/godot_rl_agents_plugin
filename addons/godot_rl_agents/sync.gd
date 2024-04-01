@@ -24,6 +24,8 @@ var should_connect = true
 
 var all_agents: Array
 var agents_training: Array
+## Policy name of each agent, for use with multi-policy multi-agent RL cases
+var agents_training_policy_names: Array[String] = ["shared_policy"]
 var agents_inference: Array
 var agents_heuristic: Array
 
@@ -43,10 +45,9 @@ var just_reset = false
 var onnx_model = null
 var n_action_steps = 0
 
-var _action_space: Dictionary
+var _action_space_training: Array[Dictionary] = []
 var _action_space_inference: Array[Dictionary] = []
-var _obs_space: Dictionary
-
+var _obs_space_training: Array[Dictionary] = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -83,8 +84,11 @@ func _initialize():
 
 func _initialize_training_agents():
 	if agents_training.size() > 0:
-		_obs_space = agents_training[0].get_obs_space()
-		_action_space = agents_training[0].get_action_space()
+		_obs_space_training.resize(agents_training.size())
+		_action_space_training.resize(agents_training.size())
+		for agent_idx in range(0, agents_training.size()):
+			_obs_space_training[agent_idx] = agents_training[agent_idx].get_obs_space()
+			_action_space_training[agent_idx] = agents_training[agent_idx].get_action_space()
 		connected = connect_to_server()
 		if connected:
 			_set_heuristic("model", agents_training)
@@ -316,6 +320,11 @@ func _get_agents():
 				"Currently only a single AIController can be used for recording expert demos."
 			)
 			agent_demo_record = agent
+	
+	var training_agent_count = agents_training.size()
+	agents_training_policy_names.resize(training_agent_count)
+	for i in range(0, training_agent_count):
+		agents_training_policy_names[i] = agents_training[i].policy_name
 
 
 func _set_heuristic(heuristic, agents: Array):
@@ -366,9 +375,10 @@ func _send_env_info():
 
 	var message = {
 		"type": "env_info",
-		"observation_space": _obs_space,
-		"action_space": _action_space,
-		"n_agents": len(agents_training)
+		"observation_space": _obs_space_training,
+		"action_space": _action_space_training,
+		"n_agents": len(agents_training),
+		"agent_policy_names": agents_training_policy_names
 	}
 	_send_dict_as_json_message(message)
 
