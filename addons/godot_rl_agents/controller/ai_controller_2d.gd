@@ -18,7 +18,8 @@ enum ControlModes { INHERIT_FROM_SYNC, HUMAN, TRAINING, ONNX_INFERENCE, RECORD_E
 
 @export_group("Multi-policy mode options")
 ## Allows you to set certain agents to use different policies.
-## Changing has no affect with default SB3 training.
+## Changing has no effect with default SB3 training. Works with Rllib example.
+## Tutorial: https://github.com/edbeeching/godot_rl_agents/blob/main/docs/TRAINING_MULTIPLE_POLICIES.md
 @export var policy_name: String = "shared_policy"
 
 var onnx_model: ONNXModel
