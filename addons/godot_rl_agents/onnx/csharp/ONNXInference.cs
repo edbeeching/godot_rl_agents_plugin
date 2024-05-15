@@ -19,16 +19,22 @@ namespace GodotONNX
 
 		private SessionOptions SessionOpt;
 
-		//init function
-		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Initialize/*'/>
-		public void Initialize(string Path, int BatchSize)
+        /// <summary>
+        /// init function
+        /// </summary>
+        /// <param name="Path"></param>
+        /// <param name="BatchSize"></param>
+        /// <returns>Returns the output size of the model</returns>
+        public int Initialize(string Path, int BatchSize)
 		{
 			modelPath = Path;
 			batchSize = BatchSize;
             SessionOpt = SessionConfigurator.MakeConfiguredSessionOptions();
             session = LoadModel(modelPath);
+            return session.OutputMetadata["output"].Dimensions[1];
+        }
 
-		}
+
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Run/*'/>
 		public Godot.Collections.Dictionary<string, Godot.Collections.Array<float>> RunInference(Godot.Collections.Array<float> obs, int state_ins)
 		{
