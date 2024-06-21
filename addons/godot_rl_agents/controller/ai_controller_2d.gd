@@ -6,7 +6,7 @@ enum ControlModes {
     HUMAN, ## Test the environment manually
     TRAINING, ## Train a model
     ONNX_INFERENCE, ## Load a pretrained model using an .onnx file
-    RECORD_EXPERT_DEMOS
+    RECORD_EXPERT_DEMOS ## Record observations and actions for expert demonstrations
 }
 @export var control_mode: ControlModes = ControlModes.INHERIT_FROM_SYNC
 ## The path to a trained .onnx model file to use for inference (only needed for the 'Onnx Inference' control mode).
