@@ -10,7 +10,6 @@ enum ControlModes {
 }
 @export var control_mode: ControlModes = ControlModes.TRAINING
 ## Action will be repeated for n frames (Godot physics steps). 
-## Can be used to ensure that action_repeat on inference and training matches
 ## the recorded demonstrations.
 @export_range(1, 10, 1, "or_greater") var action_repeat := 8
 ## Speeds up the physics in the environment to enable faster training.
