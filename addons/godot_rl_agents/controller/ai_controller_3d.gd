@@ -1,9 +1,17 @@
 extends Node3D
 class_name AIController3D
 
-enum ControlModes { INHERIT_FROM_SYNC, HUMAN, TRAINING, ONNX_INFERENCE, RECORD_EXPERT_DEMOS }
+enum ControlModes {
+    INHERIT_FROM_SYNC, ## Inherit setting from sync node
+    HUMAN, ## Test the environment manually
+    TRAINING, ## Train a model
+    ONNX_INFERENCE, ## Load a pretrained model using an .onnx file
+    RECORD_EXPERT_DEMOS ## Record observations and actions for expert demonstrations
+}
 @export var control_mode: ControlModes = ControlModes.INHERIT_FROM_SYNC
+## The path to a trained .onnx model file to use for inference (overrides the path set in sync node).
 @export var onnx_model_path := ""
+## Once the number of steps has passed, the flag 'needs_reset' will be set to 'true' for this instance.
 @export var reset_after := 1000
 
 @export_group("Record expert demos mode options")
