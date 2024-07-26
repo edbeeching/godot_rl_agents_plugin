@@ -45,14 +45,14 @@ class_name GridSensor3D
 		cell_height = value
 		_update()
 
-@export_range(1, 21, 2, "or_greater") var grid_size_x := 3:
+@export_range(1, 21, 1, "or_greater") var grid_size_x := 3:
 	get:
 		return grid_size_x
 	set(value):
 		grid_size_x = value
 		_update()
 
-@export_range(1, 21, 2, "or_greater") var grid_size_z := 3:
+@export_range(1, 21, 1, "or_greater") var grid_size_z := 3:
 	get:
 		return grid_size_z
 	set(value):
@@ -200,7 +200,7 @@ func _update_obs(cell_i: int, cell_j: int, collision_layer: int, entered: bool):
 			var collison_map_index = _collision_mapping[key]
 
 			var obs_index = (
-				(cell_i * grid_size_x * _n_layers_per_cell)
+				(cell_i * grid_size_z * _n_layers_per_cell)
 				+ (cell_j * _n_layers_per_cell)
 				+ collison_map_index
 			)
@@ -218,7 +218,7 @@ func _toggle_cell(cell_i: int, cell_j: int):
 		print("cell not found, returning")
 
 	var n_hits = 0
-	var start_index = (cell_i * grid_size_x * _n_layers_per_cell) + (cell_j * _n_layers_per_cell)
+	var start_index = (cell_i * grid_size_z * _n_layers_per_cell) + (cell_j * _n_layers_per_cell)
 	for i in _n_layers_per_cell:
 		n_hits += _obs_buffer[start_index + i]
 
