@@ -37,6 +37,7 @@ var done := false
 var reward := 0.0
 var n_steps := 0
 var needs_reset := false
+var is_success := false
 
 var _player: Node3D
 
@@ -58,6 +59,11 @@ func get_obs() -> Dictionary:
 func get_reward() -> float:
 	assert(false, "the get_reward method is not implemented when extending from ai_controller")
 	return 0.0
+
+
+func get_info() -> Dictionary:
+	assert(false, "the get_info method is not implemented when extending from ai_controller")
+	return {"is_success": is_success}
 
 
 func get_action_space() -> Dictionary:

@@ -197,12 +197,14 @@ func _physics_process(_delta):
 func _training_process():
 	if connected:
 		get_tree().set_pause(true)
+		
+		var obs = _get_obs_from_agents(agents_training)
+		var info = _get_info_from_agents(agents_training)
 
 		if just_reset:
 			just_reset = false
-			var obs = _get_obs_from_agents(agents_training)
 
-			var reply = {"type": "reset", "obs": obs}
+			var reply = {"type": "reset", "obs": obs, "reward": 0.0, "info": info}
 			_send_dict_as_json_message(reply)
 			# this should go straight to getting the action and setting it checked the agent, no need to perform one phyics tick
 			get_tree().set_pause(false)
@@ -214,9 +216,7 @@ func _training_process():
 			var done = _get_done_from_agents()
 			#_reset_agents_if_done() # this ensures the new observation is from the next env instance : NEEDS REFACTOR
 
-			var obs = _get_obs_from_agents(agents_training)
-
-			var reply = {"type": "step", "obs": obs, "reward": reward, "done": done}
+			var reply = {"type": "step", "obs": obs, "reward": reward, "done": done, "info": info}
 			_send_dict_as_json_message(reply)
 
 		var handled = handle_message()
@@ -545,6 +545,14 @@ func _get_reward_from_agents(agents: Array = agents_training):
 		rewards.append(agent.get_reward())
 		agent.zero_reward()
 	return rewards
+
+
+func _get_info_from_agents(agents: Array = all_agents):
+	var info = []
+	for agent in agents:
+		info.append(agent.get_info())
+	return info
+
 
 
 func _get_done_from_agents(agents: Array = agents_training):
