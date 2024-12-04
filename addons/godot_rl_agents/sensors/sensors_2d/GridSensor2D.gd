@@ -178,7 +178,7 @@ func _update_obs(cell_i: int, cell_j: int, collision_layer: int, entered: bool):
 			var collison_map_index = _collision_mapping[key]
 
 			var obs_index = (
-				(cell_i * grid_size_x * _n_layers_per_cell)
+				(cell_i * grid_size_y * _n_layers_per_cell)
 				+ (cell_j * _n_layers_per_cell)
 				+ collison_map_index
 			)
@@ -196,7 +196,7 @@ func _toggle_cell(cell_i: int, cell_j: int):
 		print("cell not found, returning")
 
 	var n_hits = 0
-	var start_index = (cell_i * grid_size_x * _n_layers_per_cell) + (cell_j * _n_layers_per_cell)
+	var start_index = (cell_i * grid_size_y * _n_layers_per_cell) + (cell_j * _n_layers_per_cell)
 	for i in _n_layers_per_cell:
 		n_hits += _obs_buffer[start_index + i]
 
