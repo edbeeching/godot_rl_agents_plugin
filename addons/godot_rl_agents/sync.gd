@@ -307,7 +307,7 @@ func _extract_action_dict(action_array: Array, action_space
 			# For continous actions, we only take the action mean values
 			var action_slice = action_array.slice(index, index + size)
             
-			if typeof(action_slice) != TYPE_ARRAY:  # 强制转换为数组
+			if typeof(action_slice) != TYPE_ARRAY:  # force convert to array
 				action_slice = [action_slice]
 			
 			result[key] = clamp_array(action_slice, -1.0, 1.0)
