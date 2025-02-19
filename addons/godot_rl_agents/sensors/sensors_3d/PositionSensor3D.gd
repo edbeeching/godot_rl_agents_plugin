@@ -36,7 +36,11 @@ func get_observation():
 
 		## If object has been removed, keep the zeroed position
 		if is_instance_valid(obj): relative_position = to_local(obj.global_position)
-		
+
+		if debug_lines:
+			mesh.surface_add_vertex(Vector3.ZERO)
+			mesh.surface_add_vertex(relative_position)
+
 		var direction := Vector3.ZERO 
 		var distance := 0.0
 		if use_separate_direction:
@@ -58,10 +62,6 @@ func get_observation():
 			if include_z:
 				observations.append(relative_position.z)
 
-		if debug_lines:
-			mesh.surface_add_vertex(Vector3.ZERO)
-			mesh.surface_add_vertex(to_local(obj.global_position))
-		
 	if debug_lines:
 		mesh.surface_end()
 	return observations
