@@ -27,14 +27,13 @@ func _ready() -> void:
 		line = Line2D.new()
 		add_child(line)
 		line.width = 1
-
+		line.default_color = debug_color
 
 func get_observation():
 	var observations: Array[float]
 
 	if debug_lines:
 		line.clear_points()
-		line.default_color = debug_color
 
 	for obj in objects_to_observe:
 		var relative_position := Vector2.ZERO
