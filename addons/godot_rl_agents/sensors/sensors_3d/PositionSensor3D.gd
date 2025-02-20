@@ -21,7 +21,16 @@ class_name PositionSensor3D
 @export var debug_lines: bool = true
 @export var debug_color: Color = Color.GREEN
 
-@onready var mesh: ImmediateMesh = $MeshInstance3D.mesh
+@onready var mesh: ImmediateMesh
+
+
+func _ready() -> void:
+	if debug_lines:
+		var debug_mesh = MeshInstance3D.new()
+		add_child(debug_mesh)
+		debug_mesh.mesh = ImmediateMesh.new()
+		mesh = debug_mesh.mesh
+
 
 func get_observation():
 	var observations: Array[float]
