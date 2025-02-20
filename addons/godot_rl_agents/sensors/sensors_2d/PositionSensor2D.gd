@@ -19,7 +19,15 @@ class_name PositionSensor2D
 @export var debug_lines: bool = true
 @export var debug_color: Color = Color.GREEN
 
-@onready var line: Line2D = $Line2D
+@onready var line: Line2D
+
+
+func _ready() -> void:
+	if debug_lines:
+		line = Line2D.new()
+		add_child(line)
+		line.width = 1
+
 
 func get_observation():
 	var observations: Array[float]
