@@ -28,6 +28,9 @@ func _ready() -> void:
 	if debug_lines:
 		var debug_mesh = MeshInstance3D.new()
 		add_child(debug_mesh)
+		var line_material := StandardMaterial3D.new()
+		line_material.albedo_color = debug_color
+		debug_mesh.material_override = line_material
 		debug_mesh.mesh = ImmediateMesh.new()
 		mesh = debug_mesh.mesh
 
