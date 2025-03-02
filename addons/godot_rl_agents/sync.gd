@@ -303,14 +303,8 @@ func _extract_action_dict(action_array: Array, action_space
 					largest_logit_idx = logit_idx 
 			result[key] = largest_logit_idx # Index of the largest logit is the discrete action value
 			index += size
-		elif action_type == "continuous":
-			# For continous actions, we only take the action mean values
-			var action_slice = action_array.slice(index, index + size)
-            
-			if typeof(action_slice) != TYPE_ARRAY:  # force convert to array
-				action_slice = [action_slice]
-			
-			result[key] = clamp_array(action_slice, -1.0, 1.0)
+		elif action_type == "continuous":			
+			result[key] = clamp_array(action_array.slice(index, index + size), -1.0, 1.0)
 			
 			if action_means_only:
 				index += size # model only outputs action means, so we move index by size
@@ -318,7 +312,13 @@ func _extract_action_dict(action_array: Array, action_space
 				index += size * 2 # model outputs logstd after action mean, we skip the logstd part
 
 		else:
-			assert(false, 'Only "discrete" and "continuous" action types supported. Found: %s action type set.' % action_type)
+			assert(
+				false,
+				(
+					'Only "discrete" and "continuous" action types supported. Found: %s action type set.'
+					% action_type
+				)
+			)
 		
 
 	return result
