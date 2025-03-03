@@ -286,30 +286,29 @@ func _heuristic_process():
 		_reset_agents_if_done(agents_heuristic)
 
 
-func _extract_action_dict(action_array: Array, action_space
-: Dictionary, action_means_only: bool):
+func _extract_action_dict(action_array: Array, action_space: Dictionary, action_means_only: bool):
 	var index = 0
 	var result = {}
-	for key in action_space.keys():	
-		var size = action_space[key]["size"]	
+	for key in action_space.keys():
+		var size = action_space[key]["size"]
 		var action_type = action_space[key]["action_type"]
 		if action_type == "discrete":
-			var largest_logit: float # Value of the largest logit for this action in the actions array
-			var largest_logit_idx: int # Index of the largest logit for this action in the actions array
+			var largest_logit: float  # Value of the largest logit for this action in the actions array
+			var largest_logit_idx: int  # Index of the largest logit for this action in the actions array
 			for logit_idx in range(0, size):
 				var logit_value = action_array[index + logit_idx]
 				if logit_value > largest_logit:
 					largest_logit = logit_value
-					largest_logit_idx = logit_idx 
-			result[key] = largest_logit_idx # Index of the largest logit is the discrete action value
+					largest_logit_idx = logit_idx
+			result[key] = largest_logit_idx  # Index of the largest logit is the discrete action value
 			index += size
-		elif action_type == "continuous":			
+		elif action_type == "continuous":
+			# For continous actions, we only take the action mean values
 			result[key] = clamp_array(action_array.slice(index, index + size), -1.0, 1.0)
-			
 			if action_means_only:
-				index += size # model only outputs action means, so we move index by size
+				index += size  # model only outputs action means, so we move index by size
 			else:
-				index += size * 2 # model outputs logstd after action mean, we skip the logstd part
+				index += size * 2  # model outputs logstd after action mean, we skip the logstd part
 
 		else:
 			assert(
@@ -319,7 +318,6 @@ func _extract_action_dict(action_array: Array, action_space
 					% action_type
 				)
 			)
-		
 
 	return result
 
