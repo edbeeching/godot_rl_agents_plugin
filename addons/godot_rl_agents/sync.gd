@@ -426,7 +426,13 @@ func connect_to_server():
 	var ip = "127.0.0.1"
 	var port = _get_port()
 	var connect = stream.connect_to_host(ip, port)
-	stream.set_no_delay(true)  # TODO check if this improves performance or not
+
+	# check set_no_delay settings, Windows doesn't need this
+	if OS.get_name() != "Windows":
+		stream.set_no_delay(true)  # TODO check if this improves performance or not
+	else:
+		print("Skip TCP_NoDelay on Windows")
+	
 	stream.poll()
 	# Fetch the status until it is either connected (2) or failed to connect (3)
 	while stream.get_status() < 2:
