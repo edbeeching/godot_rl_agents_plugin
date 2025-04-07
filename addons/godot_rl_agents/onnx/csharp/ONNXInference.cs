@@ -19,48 +19,54 @@ namespace GodotONNX
 
 		private SessionOptions SessionOpt;
 
-        /// <summary>
-        /// init function
-        /// </summary>
-        /// <param name="Path"></param>
-        /// <param name="BatchSize"></param>
-        /// <returns>Returns the output size of the model</returns>
-        public int Initialize(string Path, int BatchSize)
+		/// <summary>
+		/// init function
+		/// </summary>
+		/// <param name="Path"></param>
+		/// <param name="BatchSize"></param>
+		/// <returns>Returns the output size of the model</returns>
+		public int Initialize(string Path, int BatchSize)
 		{
 			modelPath = Path;
 			batchSize = BatchSize;
-            SessionOpt = SessionConfigurator.MakeConfiguredSessionOptions();
-            session = LoadModel(modelPath);
-            return session.OutputMetadata["output"].Dimensions[1];
-        }
+			SessionOpt = SessionConfigurator.MakeConfiguredSessionOptions();
+			session = LoadModel(modelPath);
+			return session.OutputMetadata["output"].Dimensions[1];
+		}
 
 
 		/// <include file='docs/ONNXInference.xml' path='docs/members[@name="ONNXInference"]/Run/*'/>
-		public Godot.Collections.Dictionary<string, Godot.Collections.Array<float>> RunInference(Godot.Collections.Array<float> obs, int state_ins)
+		public Godot.Collections.Dictionary<string, Godot.Collections.Array<float>> RunInference(Godot.Collections.Dictionary<string, Godot.Collections.Array<float>> obs, int state_ins)
 		{
 			//Current model: Any (Godot Rl Agents)
-			//Expects a tensor of shape [batch_size, input_size] type float named obs and a tensor of shape [batch_size] type float named state_ins
+			//Expects a tensor of shape [batch_size, input_size] type float for any output of the agents observation dictionary and a tensor of shape [batch_size] type float named state_ins
 
-			//Fill the input tensors
-			// create span from inputSize
-			var span = new float[obs.Count]; //There's probably a better way to do this
-			for (int i = 0; i < obs.Count; i++)
+			var modelInputsList = new List<NamedOnnxValue>
 			{
-				span[i] = obs[i];
+				NamedOnnxValue.CreateFromTensor("state_ins", new DenseTensor<float>(new float[] { state_ins }, new int[] { batchSize }))
+			};
+			foreach (var key in obs.Keys)
+			{
+				var subObs = obs[key];
+				// Fill the input tensors for each key of the observation
+				// create span of observation from specific inputSize
+				var obsData = new float[subObs.Count]; //There's probably a better way to do this
+				for (int i = 0; i < subObs.Count; i++)
+				{
+					obsData[i] = subObs[i];
+				}
+				modelInputsList.Add(
+					NamedOnnxValue.CreateFromTensor(key, new DenseTensor<float>(obsData, new int[] { batchSize, subObs.Count }))
+				);
 			}
 
-			IReadOnlyCollection<NamedOnnxValue> inputs = new List<NamedOnnxValue>
-			{
-			NamedOnnxValue.CreateFromTensor("obs", new DenseTensor<float>(span, new int[] { batchSize, obs.Count })),
-			NamedOnnxValue.CreateFromTensor("state_ins", new DenseTensor<float>(new float[] { state_ins }, new int[] { batchSize }))
-			};
 			IReadOnlyCollection<string> outputNames = new List<string> { "output", "state_outs" }; //ONNX is sensible to these names, as well as the input names
 
-			IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results; 
+			IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results;
 			//We do not use "using" here so we get a better exception explaination later
 			try
 			{
-				results = session.Run(inputs, outputNames);
+				results = session.Run(modelInputsList, outputNames);
 			}
 			catch (OnnxRuntimeException e)
 			{

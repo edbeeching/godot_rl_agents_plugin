@@ -230,7 +230,9 @@ func _inference_process():
 
 		for agent_id in range(0, agents_inference.size()):
 			var model: ONNXModel = agents_inference[agent_id].onnx_model
-			var action = model.run_inference(obs[agent_id]["obs"], 1.0)
+			var action = model.run_inference(
+				obs[agent_id], 1.0
+			)
 			var action_dict = _extract_action_dict(
 				action["output"], _action_space_inference[agent_id], model.action_means_only
 			)
