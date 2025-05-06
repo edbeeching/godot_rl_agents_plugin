@@ -21,9 +21,9 @@ func _init(model_path, batch_size):
 	action_output_size = inferencer.Initialize(model_path, batch_size)
 
 # This function is the one that will be called from the game,
-# requires the observation as an array and the state_ins as an int
-# returns an Array containing the action the model takes.
-func run_inference(obs: Array, state_ins: int) -> Dictionary:
+# requires the observations as an Dictionary and the state_ins as an int
+# returns a Dictionary containing the action the model takes.
+func run_inference(obs: Dictionary, state_ins: int) -> Dictionary:
 	if inferencer == null:
 		printerr("Inferencer not initialized")
 		return {}
