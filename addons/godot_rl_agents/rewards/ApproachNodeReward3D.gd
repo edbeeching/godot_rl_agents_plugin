@@ -10,7 +10,7 @@ class_name ApproachNodeReward3D
 
 ## Scales the reward, 1.0 means the reward is equal to 
 ## how much closer the agent is than the previous best.
-@export var reward_scale: float = 1.0
+@export_range(0.0, 1.0, 0.0001, "or_greater") var reward_scale: float = 1.0
 
 var _best_distance
 
