@@ -170,7 +170,7 @@ func get_observation() -> Array:
 func calculate_raycasts() -> Array:
 	var result = []
 	for ray in rays:
-		if debug_draw:
+		if not debug_draw:
 			ray.set_enabled(true)
 		ray.force_raycast_update()
 		var distance = _get_raycast_distance(ray)
@@ -183,7 +183,7 @@ func calculate_raycasts() -> Array:
 				hit_collision_layer = hit_collision_layer & collision_mask
 				hit_class = (hit_collision_layer & boolean_class_mask) > 0
 			result.append(float(hit_class))
-		if debug_draw:
+		if not debug_draw:
 			ray.set_enabled(false)
 	return result
 
