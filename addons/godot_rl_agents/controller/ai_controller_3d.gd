@@ -34,6 +34,7 @@ var onnx_model: ONNXModel
 
 var heuristic := "human"
 var obs_done : Dictionary
+var keep_action := false
 var done := false:
 	get:
 		return done
@@ -148,3 +149,11 @@ func set_done_false():
 
 func zero_reward():
 	reward = 0.0
+
+
+func get_keep_action():
+	return keep_action
+
+
+func set_keep_action(v):
+	keep_action = v
