@@ -33,7 +33,15 @@ enum ControlModes {
 var onnx_model: ONNXModel
 
 var heuristic := "human"
-var done := false
+var obs_done : Dictionary
+var done := false:
+	get:
+		return done
+	set(value):
+		done = value
+		if done:
+			# store the observation when a terminal state was observed (done was set to true)
+			obs_done = get_obs()
 var reward := 0.0
 var n_steps := 0
 var needs_reset := false
@@ -53,6 +61,12 @@ func init(player: Node3D):
 func get_obs() -> Dictionary:
 	assert(false, "the get_obs method is not implemented when extending from ai_controller")
 	return {"obs": []}
+
+
+func get_obs_done() -> Dictionary:
+	var obs = obs_done
+	obs_done = {} # empty it for checking purposes
+	return obs
 
 
 func get_reward() -> float:
