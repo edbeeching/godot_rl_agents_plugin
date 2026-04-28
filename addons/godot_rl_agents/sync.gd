@@ -190,8 +190,9 @@ func _physics_process(_delta):
 	if n_action_steps % action_repeat != 0:
 		if connected and _check_done_from_agents(agents_training):
 			# At least one of the agents has set done to true, initiate the learning asap
-			_set_agent_keep_action()
-			print("Train all agents but keep previous actions where necessary at n_action_steps: ", n_action_steps)
+			assert(not keep_action, "keep_action already set to true")
+			keep_action = true
+			print("Train all agents but keep previous action at n_action_steps: ", n_action_steps)
 		else:
 			n_action_steps += 1
 			return
@@ -534,8 +535,12 @@ func handle_message() -> bool:
 		return handle_message()
 
 	if message["type"] == "action":
-		var action = message["action"]
-		_set_agent_actions(action, agents_training)
+		if not keep_action:
+			var action = message["action"]
+			_set_agent_actions(action, agents_training)
+		else:
+			# keep the previously set action
+			keep_action = false
 		need_to_send_obs = true
 		get_tree().set_pause(false)
 		return true
@@ -603,6 +608,7 @@ func _get_done_from_agents(agents: Array = agents_training):
 
 
 func _check_done_from_agents(agents: Array = agents_training):
+	var dones = []
 	for agent in agents:
 		var done = agent.get_done()
 		if done:
@@ -610,24 +616,9 @@ func _check_done_from_agents(agents: Array = agents_training):
 	return false
 
 
-func _set_agent_keep_action(agents: Array = agents_training):
-	# this function must only be called when at least one of the agent has a done of true
-	for agent in agents:
-		var done = agent.get_done()
-		if not done:
-			# mark to keep the previously selected action when the action has not observed a terminal state (done is false)
-			assert(not agent.get_keep_action(), "keep_action already set to true")
-			agent.set_keep_action(true)
-
-
 func _set_agent_actions(actions, agents: Array = all_agents):
 	for i in range(len(actions)):
-		if agents[i].get_keep_action():
-			# keep the previously selected action
-			agents[i].set_keep_action(false)
-		else:
-			agents[i].set_action(actions[i])
-			
+		agents[i].set_action(actions[i])
 
 
 func clamp_array(arr: Array, min: float, max: float):
