@@ -122,9 +122,9 @@ func _physics_process(delta):
 	n_steps += 1
 	if n_steps > reset_after:
 		needs_reset = true
-		if store_obs_done: assert(obs_done.is_empty())
+		if store_obs_done: assert(obs_done.is_empty(), "the terminal observation was already captured (obs_done is not empty) and not processed before truncated was set to true")
 		truncated = true
-		if store_obs_done: assert(not obs_done.is_empty())
+		if store_obs_done: assert(not obs_done.is_empty(), "the terminal observation was not captured (obs_done is empty) after truncated was set to true")
 
 
 func get_obs_space():
