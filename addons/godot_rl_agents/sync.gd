@@ -102,6 +102,8 @@ func _initialize_training_agents():
 		for agent_idx in range(0, agents_training.size()):
 			_obs_space_training[agent_idx] = agents_training[agent_idx].get_obs_space()
 			_action_space_training[agent_idx] = agents_training[agent_idx].get_action_space()
+			agents_training[agent_idx].store_obs_done = send_terminal_obs_info
+
 		connected = connect_to_server()
 		if connected:
 			_set_heuristic("model", agents_training)
@@ -582,15 +584,17 @@ func _get_info_from_agents(agents: Array = all_agents):
 	var infos = []
 	for agent in agents:
 		var info = agent.get_info()
-		
-		if agent.get_done():
+
+		var terminal_obs
+		if send_terminal_obs_info and agent.get_done():
 			# get the observation when the terminal state was observed (done was set to true)
-			var t_obs = agent.get_obs_done()
-			assert(t_obs != {}, "obs_done must not be empty")
-			if send_terminal_obs_info:
-				info["terminal_observation"] = t_obs
-				if agent.get_truncated():
-					info["TimeLimit.truncated"] = true
+			terminal_obs = agent.get_obs_done()
+
+		if terminal_obs:
+			assert(not terminal_obs.is_empty(), "obs_done must not be empty")
+			info["terminal_observation"] = terminal_obs
+			if agent.get_truncated():
+				info["TimeLimit.truncated"] = true
 		infos.append(info)
 	return infos
 

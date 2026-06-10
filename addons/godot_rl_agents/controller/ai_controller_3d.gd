@@ -33,13 +33,15 @@ enum ControlModes {
 var onnx_model: ONNXModel
 
 var heuristic := "human"
-var obs_done : Dictionary
+## Whether the terminal observations should be stored (set by sync node on ready)
+var store_obs_done := false
+var obs_done: Dictionary
 var done := false:
 	get:
 		return done
 	set(value):
 		done = value
-		if done:
+		if done and store_obs_done:
 			# store the observation when a terminal state was observed (done was set to true)
 			obs_done = get_obs()
 var truncated := false:
@@ -120,9 +122,9 @@ func _physics_process(delta):
 	n_steps += 1
 	if n_steps > reset_after:
 		needs_reset = true
-		assert(obs_done == {})
+		if store_obs_done: assert(obs_done.is_empty())
 		truncated = true
-		assert(obs_done != {})
+		if store_obs_done: assert(not obs_done.is_empty())
 
 
 func get_obs_space():
