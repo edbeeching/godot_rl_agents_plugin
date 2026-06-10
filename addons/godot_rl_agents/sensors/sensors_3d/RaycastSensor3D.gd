@@ -65,13 +65,6 @@ class_name RayCastSensor3D
 
 @export var class_sensor := false
 
-@export var debug_draw := false:
-	get:
-		return debug_draw
-	set(value):
-		debug_draw = value
-		_update()
-
 var rays := []
 var geo = null
 
@@ -118,16 +111,13 @@ func _spawn_nodes():
 
 			points.append(cast_to)
 
-			if debug_draw:
-				ray.enabled = true
-			else:
-				ray.enabled = false
+			ray.set_name("node_" + str(i) + " " + str(j))
+			ray.enabled = true
 			ray.collide_with_bodies = collide_with_bodies
 			ray.collide_with_areas = collide_with_areas
 			ray.collision_mask = collision_mask
 			add_child(ray)
 			ray.set_owner(get_tree().edited_scene_root)
-			ray.set_name("node_" + str(i) + " " + str(j))
 			rays.append(ray)
 			ray.force_raycast_update()
 
@@ -170,8 +160,7 @@ func get_observation() -> Array:
 func calculate_raycasts() -> Array:
 	var result = []
 	for ray in rays:
-		if not debug_draw:
-			ray.set_enabled(true)
+		ray.set_enabled(true)
 		ray.force_raycast_update()
 		var distance = _get_raycast_distance(ray)
 
@@ -183,8 +172,7 @@ func calculate_raycasts() -> Array:
 				hit_collision_layer = hit_collision_layer & collision_mask
 				hit_class = (hit_collision_layer & boolean_class_mask) > 0
 			result.append(float(hit_class))
-		if not debug_draw:
-			ray.set_enabled(false)
+		ray.set_enabled(false)
 	return result
 
 
