@@ -43,7 +43,7 @@ class_name RaycastSensor2D
 		cone_width = value
 		_update()
 
-@export var debug_draw := true:
+@export var debug_draw := false:
 	get:
 		return debug_draw
 	set(value):
@@ -56,20 +56,19 @@ var rays := []
 
 func _update():
 	if Engine.is_editor_hint():
-		if debug_draw:
+		if is_node_ready():
 			_spawn_nodes()
-		else:
-			for ray in get_children():
-				if ray is RayCast2D:
-					remove_child(ray)
-
 
 func _ready() -> void:
-	_spawn_nodes()
+	if Engine.is_editor_hint():
+		if get_child_count() == 0:
+			_spawn_nodes()
+	else:
+		_spawn_nodes()
 
 
 func _spawn_nodes():
-	for ray in rays:
+	for ray in get_children():
 		ray.queue_free()
 	rays = []
 
@@ -83,12 +82,16 @@ func _spawn_nodes():
 		ray.set_target_position(
 			Vector2(ray_length * cos(deg_to_rad(angle)), ray_length * sin(deg_to_rad(angle)))
 		)
-		ray.set_name("node_" + str(i))
-		ray.enabled = false
+		if debug_draw:
+			ray.enabled = true
+		else:
+			ray.enabled = false
 		ray.collide_with_areas = collide_with_areas
 		ray.collide_with_bodies = collide_with_bodies
 		ray.collision_mask = collision_mask
 		add_child(ray)
+		ray.set_owner(get_tree().edited_scene_root)
+		ray.set_name("node_" + str(i))
 		rays.append(ray)
 
 		_angles.append(start + i * step)
@@ -101,11 +104,13 @@ func get_observation() -> Array:
 func calculate_raycasts() -> Array:
 	var result = []
 	for ray in rays:
-		ray.enabled = true
+		if not debug_draw:
+			ray.enabled = true
 		ray.force_raycast_update()
 		var distance = _get_raycast_distance(ray)
 		result.append(distance)
-		ray.enabled = false
+		if not debug_draw:
+			ray.enabled = false
 	return result
 
 
