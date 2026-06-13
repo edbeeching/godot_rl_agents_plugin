@@ -17,6 +17,8 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Whether the inference will be deterministic (NOTE: Only applies to discrete actions in onnx inference mode)
 @export var deterministic_inference := true
+## Whether the terminal observations should be sent on done or truncated (this is needed for truncation support and optionally for custom godot-rl-agents wrappers)
+@export var send_terminal_obs_info := false
 
 # Onnx model stored for each requested path
 var onnx_models: Dictionary
@@ -100,6 +102,8 @@ func _initialize_training_agents():
 		for agent_idx in range(0, agents_training.size()):
 			_obs_space_training[agent_idx] = agents_training[agent_idx].get_obs_space()
 			_action_space_training[agent_idx] = agents_training[agent_idx].get_action_space()
+			agents_training[agent_idx].store_obs_done = send_terminal_obs_info
+
 		connected = connect_to_server()
 		if connected:
 			_set_heuristic("model", agents_training)
@@ -217,7 +221,6 @@ func _training_process():
 			need_to_send_obs = false
 			var reward = _get_reward_from_agents()
 			var done = _get_done_from_agents()
-			#_reset_agents_if_done() # this ensures the new observation is from the next env instance : NEEDS REFACTOR
 
 			var reply = {"type": "step", "obs": obs, "reward": reward, "done": done, "info": info}
 			_send_dict_as_json_message(reply)
@@ -551,6 +554,9 @@ func _reset_agents_if_done(agents = all_agents):
 	for agent in agents:
 		if agent.get_done():
 			agent.set_done_false()
+		if agent.get_truncated():
+			agent.set_truncated_false()
+
 
 
 func _reset_agents(agents = all_agents):
@@ -575,10 +581,22 @@ func _get_reward_from_agents(agents: Array = agents_training):
 
 
 func _get_info_from_agents(agents: Array = all_agents):
-	var info = []
+	var infos = []
 	for agent in agents:
-		info.append(agent.get_info())
-	return info
+		var info = agent.get_info()
+
+		var terminal_obs
+		if send_terminal_obs_info and agent.get_done():
+			# get the observation when the terminal state was observed (done was set to true)
+			terminal_obs = agent.get_obs_done()
+
+		if terminal_obs:
+			assert(not terminal_obs.is_empty(), "obs_done must not be empty")
+			info["terminal_observation"] = terminal_obs
+			if agent.get_truncated():
+				info["TimeLimit.truncated"] = true
+		infos.append(info)
+	return infos
 
 
 func _get_done_from_agents(agents: Array = agents_training):
@@ -587,6 +605,11 @@ func _get_done_from_agents(agents: Array = agents_training):
 		var done = agent.get_done()
 		if done:
 			agent.set_done_false()
+		# clear truncated when necessary
+		if agent.get_truncated():
+			agent.set_truncated_false()
+			if not send_terminal_obs_info:
+				done = false
 		dones.append(done)
 	return dones
 

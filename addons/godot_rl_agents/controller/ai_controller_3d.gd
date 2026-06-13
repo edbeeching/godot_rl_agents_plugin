@@ -33,7 +33,24 @@ enum ControlModes {
 var onnx_model: ONNXModel
 
 var heuristic := "human"
-var done := false
+## Whether the terminal observations should be stored (set by sync node on ready)
+var store_obs_done := false
+var obs_done: Dictionary
+var done := false:
+	get:
+		return done
+	set(value):
+		done = value
+		if done and store_obs_done:
+			# store the observation when a terminal state was observed (done was set to true)
+			obs_done = get_obs()
+var truncated := false:
+	get:
+		return truncated
+	set(value):
+		truncated = value
+		if truncated:
+			done = true
 var reward := 0.0
 var n_steps := 0
 var needs_reset := false
@@ -53,6 +70,12 @@ func init(player: Node3D):
 func get_obs() -> Dictionary:
 	assert(false, "the get_obs method is not implemented when extending from ai_controller")
 	return {"obs": []}
+
+
+func get_obs_done() -> Dictionary:
+	var obs = obs_done
+	obs_done = {} # empty it for checking purposes
+	return obs
 
 
 func get_reward() -> float:
@@ -99,6 +122,9 @@ func _physics_process(delta):
 	n_steps += 1
 	if n_steps > reset_after:
 		needs_reset = true
+		if store_obs_done: assert(obs_done.is_empty(), "the terminal observation was already captured (obs_done is not empty) and not processed before truncated was set to true")
+		truncated = true
+		if store_obs_done: assert(not obs_done.is_empty(), "the terminal observation was not captured (obs_done is empty) after truncated was set to true")
 
 
 func get_obs_space():
@@ -130,6 +156,14 @@ func get_done():
 
 func set_done_false():
 	done = false
+
+
+func get_truncated():
+	return truncated
+
+
+func set_truncated_false():
+	truncated = false
 
 
 func zero_reward():
