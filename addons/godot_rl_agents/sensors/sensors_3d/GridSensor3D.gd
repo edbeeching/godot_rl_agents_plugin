@@ -97,13 +97,13 @@ func _make_materials() -> void:
 		return
 
 	_standard_box_material = StandardMaterial3D.new()
-	_standard_box_material.set_transparency(1)  # ALPHA
+	_standard_box_material.set_transparency(StandardMaterial3D.Transparency.TRANSPARENCY_ALPHA)  # ALPHA
 	_standard_box_material.albedo_color = Color(
 		100.0 / 255.0, 100.0 / 255.0, 100.0 / 255.0, 100.0 / 255.0
 	)
 
 	_highlighted_box_material = StandardMaterial3D.new()
-	_highlighted_box_material.set_transparency(1)  # ALPHA
+	_highlighted_box_material.set_transparency(StandardMaterial3D.Transparency.TRANSPARENCY_ALPHA)  # ALPHA
 	_highlighted_box_material.albedo_color = Color(
 		255.0 / 255.0, 100.0 / 255.0, 100.0 / 255.0, 100.0 / 255.0
 	)
