@@ -17,6 +17,8 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Whether the inference will be deterministic (NOTE: Only applies to discrete actions in onnx inference mode)
 @export var deterministic_inference := true
+## Whether the environments are initially resetted once in ONNX inference mode (this is to get the same environment behaviour as in the training mode)
+@export var initial_reset_onnx_inference := false
 
 # Onnx model stored for each requested path
 var onnx_models: Dictionary
@@ -59,6 +61,7 @@ var _action_space_training: Array[Dictionary] = []
 var _action_space_inference: Array[Dictionary] = []
 var _obs_space_training: Array[Dictionary] = []
 
+var is_first_inference_action = true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -227,7 +230,15 @@ func _training_process():
 
 func _inference_process():
 	if agents_inference.size() > 0:
+		get_tree().set_pause(true)
+
 		var obs: Array = _get_obs_from_agents(agents_inference)
+		if initial_reset_onnx_inference and is_first_inference_action:
+			is_first_inference_action = false
+			_reset_agents()
+			get_tree().set_pause(false)
+			return
+
 		var actions = []
 
 		for agent_id in range(0, agents_inference.size()):
