@@ -209,9 +209,6 @@ func _training_process():
 
 			var reply = {"type": "reset", "obs": obs, "info": info}
 			_send_dict_as_json_message(reply)
-			# this should go straight to getting the action and setting it checked the agent, no need to perform one phyics tick
-			get_tree().set_pause(false)
-			return
 
 		if need_to_send_obs:
 			need_to_send_obs = false
