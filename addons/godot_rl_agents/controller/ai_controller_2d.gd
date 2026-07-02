@@ -13,6 +13,8 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Once the number of steps has passed, the flag 'needs_reset' will be set to 'true' for this instance.
 @export var reset_after := 1000
+## Group name of this agent (must match the agent group name of one of the sync nodes)
+@export var agent_group_name := "AGENT"
 
 @export_group("Record expert demos mode options")
 ## Path where the demos will be saved. The file can later be used for imitation learning.
@@ -42,7 +44,7 @@ var _player: Node2D
 
 
 func _ready():
-	add_to_group("AGENT")
+	add_to_group(agent_group_name)
 
 
 func init(player: Node2D):

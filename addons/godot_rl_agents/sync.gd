@@ -17,6 +17,10 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Whether the inference will be deterministic (NOTE: Only applies to discrete actions in onnx inference mode)
 @export var deterministic_inference := true
+## Group name of the agents that are associated to this sync node (must match the group name of at least one of the AI-controller nodes)
+@export var agent_group_name := "AGENT"
+## When not empty then this value overrides the TCP port (only needed for 'Training' control mode)
+@export var tcp_port_override : String = ""
 
 # Onnx model stored for each requested path
 var onnx_models: Dictionary
@@ -360,7 +364,8 @@ func _set_agent_mode(agent: Node):
 
 
 func _get_agents():
-	all_agents = get_tree().get_nodes_in_group("AGENT")
+	all_agents = get_tree().get_nodes_in_group(agent_group_name)
+	assert (not all_agents.is_empty(), "No AI-controllers found. Check group name: " + agent_group_name)
 	for agent in all_agents:
 		_set_agent_mode(agent)
 
@@ -479,7 +484,10 @@ func _get_speedup():
 
 
 func _get_port():
-	return args.get("port", DEFAULT_PORT).to_int()
+	if not tcp_port_override.is_empty():
+		return str(tcp_port_override).to_int()
+	else:
+		return args.get("port", DEFAULT_PORT).to_int()
 
 
 func _set_seed():
