@@ -5,7 +5,7 @@ class_name Sync
 
 enum ControlModes {
 	HUMAN, ## Test the environment manually
-	TRAINING, ## Train a model
+	TRAINING, ## Connect to Python server for model training or inference
 	ONNX_INFERENCE ## Load a pretrained model using an .onnx file
 }
 @export var control_mode: ControlModes = ControlModes.TRAINING
