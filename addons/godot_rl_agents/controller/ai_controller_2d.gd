@@ -26,8 +26,8 @@ enum ControlModes {
 
 @export_group("Multi-policy mode options")
 ## Allows you to set certain agents to use different policies.
-## Changing has no effect with default SB3 training. Works with Rllib example.
-## Tutorial: https://github.com/edbeeching/godot_rl_agents/blob/main/docs/TRAINING_MULTIPLE_POLICIES.md
+## Works with Rllib example (one Python server) and SB3 (one Python server per policy)
+## RLlib tutorial: https://github.com/edbeeching/godot_rl_agents/blob/main/docs/TRAINING_MULTIPLE_POLICIES.md
 @export var policy_name: String = "shared_policy"
 
 var onnx_model: ONNXModel
@@ -42,7 +42,7 @@ var _player: Node2D
 
 
 func _ready():
-	add_to_group("AGENT")
+	add_to_group(policy_name)
 
 
 func init(player: Node2D):
