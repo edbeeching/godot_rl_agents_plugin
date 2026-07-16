@@ -17,8 +17,10 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Whether the inference will be deterministic (NOTE: Only applies to discrete actions in onnx inference mode)
 @export var deterministic_inference := true
-## Group name of the agents that are associated to this sync node (must match the group name of at least one of the AI-controller nodes)
-@export var agent_group_name := "AGENT"
+
+@export_group("Multi-server mode options")
+## Policy name of the AI-controllers that are assigned to this sync node
+@export var policy_name: String = "shared_policy"
 ## When not empty then this value overrides the TCP port (only needed for 'Training' control mode)
 @export var tcp_port_override : String = ""
 
@@ -364,8 +366,8 @@ func _set_agent_mode(agent: Node):
 
 
 func _get_agents():
-	all_agents = get_tree().get_nodes_in_group(agent_group_name)
-	assert (not all_agents.is_empty(), "No AI-controllers found. Check group name: " + agent_group_name)
+	all_agents = get_tree().get_nodes_in_group(policy_name)
+	assert (not all_agents.is_empty(), "No AI-controllers found. Check group name: " + policy_name)
 	for agent in all_agents:
 		_set_agent_mode(agent)
 

@@ -13,8 +13,6 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Once the number of steps has passed, the flag 'needs_reset' will be set to 'true' for this instance.
 @export var reset_after := 1000
-## Group name of this agent (must match the agent group name of one of the sync nodes)
-@export var agent_group_name := "AGENT"
 
 @export_group("Record expert demos mode options")
 ## Path where the demos will be saved. The file can later be used for imitation learning.
@@ -28,8 +26,8 @@ enum ControlModes {
 
 @export_group("Multi-policy mode options")
 ## Allows you to set certain agents to use different policies.
-## Changing has no effect with default SB3 training. Works with Rllib example.
-## Tutorial: https://github.com/edbeeching/godot_rl_agents/blob/main/docs/TRAINING_MULTIPLE_POLICIES.md
+## Works with Rllib example (one Python server) and SB3 (one Python server per policy)
+## RLlib tutorial: https://github.com/edbeeching/godot_rl_agents/blob/main/docs/TRAINING_MULTIPLE_POLICIES.md
 @export var policy_name: String = "shared_policy"
 
 var onnx_model: ONNXModel
@@ -44,7 +42,7 @@ var _player: Node3D
 
 
 func _ready():
-	add_to_group(agent_group_name)
+	add_to_group(policy_name)
 
 
 func init(player: Node3D):
