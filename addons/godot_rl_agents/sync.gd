@@ -32,6 +32,7 @@ var onnx_models: Dictionary
 const MAJOR_VERSION := "0"
 const MINOR_VERSION := "7"
 const DEFAULT_PORT := "11008"
+const DEFAULT_PORT_OFFSET := "0"
 const DEFAULT_SEED := "1"
 var stream: StreamPeerTCP = null
 var connected = false
@@ -454,7 +455,7 @@ func connect_to_server():
 
 	# "localhost" was not working on windows VM, had to use the IP
 	var ip = "127.0.0.1"
-	var port = _get_port()
+	var port = _get_port() + _get_port_offset()
 	var connect = stream.connect_to_host(ip, port)
 	stream.set_no_delay(true)  # TODO check if this improves performance or not
 	stream.poll()
@@ -490,6 +491,10 @@ func _get_port():
 		return str(tcp_port_override).to_int()
 	else:
 		return args.get("port", DEFAULT_PORT).to_int()
+
+
+func _get_port_offset():
+	return args.get("port_offset", DEFAULT_PORT_OFFSET).to_int()
 
 
 func _set_seed():
