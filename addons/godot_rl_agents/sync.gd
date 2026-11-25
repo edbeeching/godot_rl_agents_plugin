@@ -17,6 +17,11 @@ enum ControlModes {
 @export var onnx_model_path := ""
 ## Whether the inference will be deterministic (NOTE: Only applies to discrete actions in onnx inference mode)
 @export var deterministic_inference := true
+## Sends training observations as hex-encoded float32 bytes instead of JSON number lists.
+## Much faster with many agents or large observations. Needs a godot_rl Python package
+## that decodes them. Keys containing "2d" are sent as before. Can also be enabled with
+## the --binary_observations command line argument.
+@export var binary_observations := false
 
 # Onnx model stored for each requested path
 var onnx_models: Dictionary
@@ -90,6 +95,7 @@ func _initialize():
 
 	_set_seed()
 	_set_action_repeat()
+	_set_binary_observations()
 	initialized = true
 
 
@@ -202,6 +208,8 @@ func _training_process():
 		get_tree().set_pause(true)
 
 		var obs = _get_obs_from_agents(agents_training)
+		if binary_observations:
+			obs = _encode_obs_as_binary(obs)
 		var info = _get_info_from_agents(agents_training)
 
 		if just_reset:
@@ -491,6 +499,11 @@ func _set_action_repeat():
 	action_repeat = args.get("action_repeat", str(action_repeat)).to_int()
 
 
+func _set_binary_observations():
+	if args.has("binary_observations"):
+		binary_observations = args["binary_observations"] in ["", "true", "1"]
+
+
 func disconnect_from_server():
 	stream.disconnect_from_host()
 
@@ -564,6 +577,27 @@ func _get_obs_from_agents(agents: Array = all_agents):
 	for agent in agents:
 		obs.append(agent.get_obs())
 	return obs
+
+
+## Replaces each float observation with the hex string of its float32 bytes.
+## Writing thousands of numbers as JSON text is the costly part of a step; the hex
+## string goes through JSON.stringify as a plain string. Python decodes it with
+## np.frombuffer(bytes.fromhex(s), "<f4"). Keys containing "2d" already travel as hex.
+func _encode_obs_as_binary(obs: Array) -> Array:
+	var encoded := []
+	for agent_obs in obs:
+		var agent_encoded := {}
+		for key in agent_obs:
+			var value = agent_obs[key]
+			if (
+				"2d" in key
+				or not (value is Array or value is PackedFloat32Array or value is PackedFloat64Array)
+			):
+				agent_encoded[key] = value
+			else:
+				agent_encoded[key] = PackedFloat32Array(value).to_byte_array().hex_encode()
+		encoded.append(agent_encoded)
+	return encoded
 
 
 func _get_reward_from_agents(agents: Array = agents_training):
